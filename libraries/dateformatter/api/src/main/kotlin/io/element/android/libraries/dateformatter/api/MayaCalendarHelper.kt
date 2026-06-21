@@ -1,9 +1,9 @@
-package io.element.android.features.messages.impl.timeline.util
+package io.element.android.libraries.dateformatter.api
 
 import java.time.Instant
 import java.time.ZoneId
 import java.time.LocalDate
-import io.element.android.features.messages.impl.R
+import io.element.android.libraries.dateformatter.api.R
 
 object MayaCalendarHelper {
     private val strWinal = listOf("Pop'", "Wo'", "Zip'", "Zotz'", "Tzek", "Xul", "Yaxkin", "Mol", "Chen", "Yax", "Saq", "Cej",
