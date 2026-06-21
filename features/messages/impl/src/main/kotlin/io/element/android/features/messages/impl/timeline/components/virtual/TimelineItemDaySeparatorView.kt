@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelProvider
-import io.element.android.features.messages.impl.timeline.util.MayaCalendarHelper
+import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Text
@@ -64,10 +64,10 @@ internal fun TimelineItemDaySeparatorView(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy((-14).dp), // Reduces space between images
+                    verticalArrangement = Arrangement.spacedBy((-14).dp),
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .offset(y = -20.dp) // Moves both images down by 24.dp
+                        .offset(y = -20.dp)
                 ) {
                     Image(
                         painter = painterResource(id = mayaDate.toneResId),
