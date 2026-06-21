@@ -8,73 +8,53 @@
 
 package io.element.android.features.rageshake.impl.crash
 
-import android.os.Build
-import android.os.TransactionTooLargeException
-import io.element.android.libraries.architecture.appyx.lastCapturedNavState
+import android.content.Context
+import io.element.android.libraries.core.coroutine.CoroutineDispatchers
 import io.element.android.libraries.core.data.tryOrNull
+import io.element.android.libraries.core.meta.BuildMeta
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 import java.io.PrintWriter
 import java.io.StringWriter
 
 class VectorUncaughtExceptionHandler(
-    private val preferencesCrashDataStore: PreferencesCrashDataStore,
+    private val context: Context,
+    private val buildMeta: BuildMeta,
+    private val dispatchers: CoroutineDispatchers,
+    private val crashDataStore: CrashDataStore,
 ) : Thread.UncaughtExceptionHandler {
-    private var previousHandler: Thread.UncaughtExceptionHandler? = null
 
-    /**
-     * Activate this handler.
-     */
-    fun activate() {
-        previousHandler = Thread.getDefaultUncaughtExceptionHandler()
+    private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+
+    init {
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 
-    /**
-     * An uncaught exception has been triggered.
-     *
-     * @param thread the thread
-     * @param throwable the throwable
-     */
-    @Suppress("PrintStackTrace")
     override fun uncaughtException(thread: Thread, throwable: Throwable) {
-        Timber.v("Uncaught exception: $throwable")
-        val bugDescription = buildString {
-            val appName = "ElementX"
-            // append(appName + " Build : " + versionCodeProvider.getVersionCode() + "\n")
-            append("$appName Version : 1.0") // ${versionProvider.getVersion(longFormat = true)}\n")
-            // append("SDK Version : ${Matrix.getSdkVersion()}\n")
-            append("Phone : " + Build.MODEL.trim() + " (" + Build.VERSION.INCREMENTAL + " " + Build.VERSION.RELEASE + " " + Build.VERSION.CODENAME + ")\n")
-            append("Memory statuses \n")
-            var freeSize = 0L
-            var totalSize = 0L
-            var usedSize = -1L
+        Timber.tag("Crash").e(throwable, "Uncaught exception in thread ${thread.name}")
+
+        val appName = "MayaChat"
+        val appVersion = buildMeta.versionName
+        val builder = StringBuilder()
+        builder.append("App: $appName\n")
+        builder.append("Version: $appVersion\n")
+        builder.append("OS: Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})\n")
+        builder.append("Device: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}\n")
+        builder.append("Thread: ${thread.name}\n\n")
+
+        val sw = StringWriter()
+        val pw = PrintWriter(sw)
+        throwable.printStackTrace(pw)
+        builder.append(sw.toString())
+
+        val crashDetail = builder.toString()
+
+        runBlocking(dispatchers.io) {
             tryOrNull {
-                val info = Runtime.getRuntime()
-                freeSize = info.freeMemory()
-                totalSize = info.totalMemory()
-                usedSize = totalSize - freeSize
+                crashDataStore.setCrashData(crashDetail)
             }
-            append("usedSize   " + usedSize / 1_048_576L + " MB\n")
-            append("freeSize   " + freeSize / 1_048_576L + " MB\n")
-            append("totalSize   " + totalSize / 1_048_576L + " MB\n")
-            append("Thread: ")
-            append(thread.name)
-            append(", Exception: ")
-            val sw = StringWriter()
-            val pw = PrintWriter(sw, true)
-            throwable.printStackTrace(pw)
-
-            if (throwable is RuntimeException && throwable.cause is TransactionTooLargeException) {
-                pw.append('\n')
-                pw.append(lastCapturedNavState)
-                Timber.v(lastCapturedNavState)
-            }
-
-            append(sw.buffer.toString())
         }
-        Timber.e("FATAL EXCEPTION $bugDescription")
-        preferencesCrashDataStore.setCrashData(bugDescription)
-        // Show the classical system popup
-        previousHandler?.uncaughtException(thread, throwable)
+
+        defaultHandler?.uncaughtException(thread, throwable)
     }
 }

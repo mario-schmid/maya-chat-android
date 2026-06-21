@@ -13,12 +13,24 @@ import androidx.startup.Initializer
 import io.element.android.features.rageshake.impl.crash.VectorUncaughtExceptionHandler
 import io.element.android.features.rageshake.impl.di.RageshakeBindings
 import io.element.android.libraries.architecture.bindings
+import io.element.android.libraries.core.coroutine.CoroutineDispatchers
+import io.element.android.x.di.AppBindings
 
 class CrashInitializer : Initializer<Unit> {
     override fun create(context: Context) {
+        val appBindings = context.bindings<AppBindings>()
+        val rageshakeBindings = context.bindings<RageshakeBindings>()
+        
+        // CoroutineDispatchers is currently provided by AppModule but not exposed in AppBindings.
+        // For now, we'll use the default since it's what AppModule provides anyway.
+        val dispatchers = CoroutineDispatchers.Default
+        
         VectorUncaughtExceptionHandler(
-            context.bindings<RageshakeBindings>().preferencesCrashDataStore(),
-        ).activate()
+            context = context,
+            buildMeta = appBindings.buildMeta(),
+            dispatchers = dispatchers,
+            crashDataStore = rageshakeBindings.preferencesCrashDataStore(),
+        )
     }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()

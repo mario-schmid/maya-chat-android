@@ -8,20 +8,31 @@
 
 package io.element.android.features.messages.impl.timeline.components.virtual
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
-import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelPreviewParam
+import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelProvider
+import io.element.android.features.messages.impl.timeline.util.MayaCalendarHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Text
@@ -31,6 +42,8 @@ internal fun TimelineItemDaySeparatorView(
     model: TimelineItemDaySeparatorModel,
     modifier: Modifier = Modifier
 ) {
+    val mayaDate = MayaCalendarHelper.getMayaDate(model.timestamp)
+    
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -38,15 +51,52 @@ internal fun TimelineItemDaySeparatorView(
             .padding(16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .semantics {
-                    heading()
-                },
-            text = model.formattedDate,
-            style = ElementTheme.typography.fontBodyMdMedium,
-            color = ElementTheme.colors.textPrimary,
-        )
+                .semantics { heading() }
+                .offset(y = 12.dp)
+        ) {
+            // Maya Badge equivalent
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(end = 12.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy((-14).dp), // Reduces space between images
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .offset(y = -20.dp) // Moves both images down by 24.dp
+                ) {
+                    Image(
+                        painter = painterResource(id = mayaDate.toneResId),
+                        contentDescription = mayaDate.toneName,
+                        modifier = Modifier.size(56.dp)
+                    )
+                    Image(
+                        painter = painterResource(id = mayaDate.nahualResId),
+                        contentDescription = mayaDate.nahualName,
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+                Text(
+                    text = mayaDate.fullMayaText,
+                    style = ElementTheme.typography.fontBodyMdMedium.copy(
+                        color = Color(0xFF5FB336),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    )
+                )
+            }
+
+            // Original Gregorian Date
+            Text(
+                text = model.formattedDate,
+                style = ElementTheme.typography.fontBodyMdMedium,
+                color = ElementTheme.colors.textPrimary,
+            )
+        }
     }
 }
 

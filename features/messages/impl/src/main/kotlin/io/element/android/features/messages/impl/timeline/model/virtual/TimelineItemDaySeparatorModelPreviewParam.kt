@@ -12,11 +12,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
 class TimelineItemDaySeparatorModelPreviewParam : PreviewParameterProvider<TimelineItemDaySeparatorModel> {
     override val values = sequenceOf(
-        aTimelineItemDaySeparatorModel("Today"),
-        aTimelineItemDaySeparatorModel("March 6, 2023")
+        aTimelineItemDaySeparatorModel("Today", 0L),
+        aTimelineItemDaySeparatorModel("March 6, 2023", 1678060800000L)
     )
 }
 
-fun aTimelineItemDaySeparatorModel(formattedDate: String) = TimelineItemDaySeparatorModel(
-    formattedDate = formattedDate
+fun aTimelineItemDaySeparatorModel(formattedDate: String, timestamp: Long = 0L) = TimelineItemDaySeparatorModel(
+    formattedDate = formattedDate,
+    timestamp = timestamp
 )

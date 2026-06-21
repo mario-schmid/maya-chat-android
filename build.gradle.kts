@@ -14,10 +14,12 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.dependencycheck) apply false
+    alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    id("org.jetbrains.kotlin.plugin.parcelize") version "2.3.20" apply false
     alias(libs.plugins.dependencyanalysis)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
@@ -125,8 +127,8 @@ dependencyAnalysis {
 // Sonar result can be found here: https://sonarcloud.io/project/overview?id=element-x-android
 sonar {
     properties {
-        property("sonar.projectName", "element-x-android")
-        property("sonar.projectKey", "element-x-android")
+        property("sonar.projectName", "MayaChat")
+        property("sonar.projectKey", "MayaChat")
         property("sonar.host.url", "https://sonarcloud.io")
         property("sonar.projectVersion", "1.0") // TODO project(":app").android.defaultConfig.versionName)
         property("sonar.sourceEncoding", "UTF-8")
@@ -220,13 +222,18 @@ tasks.register("generateDocsToc", Exec::class.java) {
 // below. Run it by hand (or use Paparazzi's own `cleanRecordPaparazziDebug`) to record from scratch.
 subprojects {
     val snapshotsDir = File("${project.projectDir}/src/test/snapshots")
+<<<<<<< ours
     tasks.register("removeOldSnapshots") {
+=======
+    val removeOldPaparazziSnapshotsTask = tasks.register("removeOldPaparazziSnapshots") {
+>>>>>>> theirs
         onlyIf { snapshotsDir.exists() }
         doFirst {
             println("Delete previous screenshots located at $snapshotsDir\n")
             snapshotsDir.deleteRecursively()
         }
     }
+<<<<<<< ours
 }
 
 // Delete the screenshots of previews that no longer exist, *after* recording.
@@ -303,6 +310,23 @@ subprojects {
     tasks.matching { it.name.startsWith("recordPaparazzi") }.configureEach {
         finalizedBy(pruneObsoleteSnapshots)
     }
+=======
+    tasks.findByName("recordPaparazzi")?.dependsOn(removeOldPaparazziSnapshotsTask)
+    tasks.findByName("recordPaparazziDebug")?.dependsOn(removeOldPaparazziSnapshotsTask)
+    tasks.findByName("recordPaparazziRelease")?.dependsOn(removeOldPaparazziSnapshotsTask)
+
+    val screenshotsDir = File("${project.projectDir}/screenshots")
+    val removeOldRoborazziSnapshotsTask = tasks.register("removeOldRoborazziSnapshots") {
+        onlyIf { screenshotsDir.exists() }
+        doFirst {
+            println("Delete previous screenshots located at $screenshotsDir\n")
+            screenshotsDir.deleteRecursively()
+        }
+    }
+    tasks.findByName("recordRoborazzi")?.dependsOn(removeOldRoborazziSnapshotsTask)
+    tasks.findByName("recordRoborazziDebug")?.dependsOn(removeOldRoborazziSnapshotsTask)
+    tasks.findByName("recordRoborazziRelease")?.dependsOn(removeOldRoborazziSnapshotsTask)
+>>>>>>> theirs
 }
 
 subprojects {
