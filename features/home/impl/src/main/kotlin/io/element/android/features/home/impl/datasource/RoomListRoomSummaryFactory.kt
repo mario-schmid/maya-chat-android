@@ -15,6 +15,7 @@ import io.element.android.features.home.impl.model.RoomSummaryDisplayType
 import io.element.android.libraries.core.extensions.orEmpty
 import io.element.android.libraries.dateformatter.api.DateFormatter
 import io.element.android.libraries.dateformatter.api.DateFormatterMode
+import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
 import io.element.android.libraries.designsystem.components.avatar.AvatarSize
 import io.element.android.libraries.eventformatter.api.RoomLatestEventFormatter
 import io.element.android.libraries.matrix.api.room.CallIntentConsensus
@@ -24,6 +25,13 @@ import io.element.android.libraries.matrix.api.roomlist.RoomSummary
 import io.element.android.libraries.matrix.ui.model.dmUserStatus
 import io.element.android.libraries.matrix.ui.model.getAvatarData
 import io.element.android.libraries.matrix.ui.model.toInviteSender
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import kotlinx.collections.immutable.toImmutableList
 
 @Inject
@@ -50,6 +58,7 @@ class RoomListRoomSummaryFactory(
                     useRelative = true,
                 )
                 if (latestEventTimestamp != null && baseTimestamp.isNotEmpty()) {
+                    val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
                     val isToday = Instant.ofEpochMilli(latestEventTimestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate() == LocalDate.now()

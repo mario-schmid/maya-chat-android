@@ -220,7 +220,7 @@ private fun RoomSummaryScaffoldRow(
 @Composable
 private fun NameAndTimestampRow(
     name: String?,
-    timestamp: String?,
+    timestamp: CharSequence?,
     isHighlighted: Boolean,
     dmUserStatus: DisplayedStatus?,
     modifier: Modifier = Modifier
@@ -239,15 +239,18 @@ private fun NameAndTimestampRow(
             nameFontStyle = FontStyle.Italic.takeIf { name == null },
         )
         // Timestamp
-        Text(
-            text = timestamp ?: "",
-            style = ElementTheme.typography.fontBodySmMedium,
-            color = if (isHighlighted) {
-                ElementTheme.colors.unreadIndicator
-            } else {
-                ElementTheme.colors.roomListRoomMessageDate
-            },
-        )
+        if (timestamp != null) {
+            val annotatedTimestamp = timestamp as? AnnotatedString ?: AnnotatedString(text = timestamp.toString())
+            Text(
+                text = annotatedTimestamp,
+                style = ElementTheme.typography.fontBodySmMedium,
+                color = if (isHighlighted) {
+                    ElementTheme.colors.unreadIndicator
+                } else {
+                    ElementTheme.colors.roomListRoomMessageDate
+                },
+            )
+        }
     }
 }
 
