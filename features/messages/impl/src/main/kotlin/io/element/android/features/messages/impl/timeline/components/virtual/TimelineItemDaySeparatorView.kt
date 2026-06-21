@@ -8,9 +8,15 @@
 
 package io.element.android.features.messages.impl.timeline.components.virtual
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,12 +26,19 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
+<<<<<<< HEAD
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelPreviewParam
 import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
+=======
+import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelProvider
+import io.element.android.features.messages.impl.timeline.util.MayaCalendarHelper
+>>>>>>> da106505df (update)
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Text
@@ -35,6 +48,8 @@ internal fun TimelineItemDaySeparatorView(
     model: TimelineItemDaySeparatorModel,
     modifier: Modifier = Modifier
 ) {
+    val mayaDate = MayaCalendarHelper.getMayaDate(model.timestamp)
+    
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -42,7 +57,8 @@ internal fun TimelineItemDaySeparatorView(
             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .semantics { heading() }
         ) {

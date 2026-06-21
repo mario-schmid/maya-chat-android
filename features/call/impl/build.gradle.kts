@@ -14,7 +14,7 @@ import extension.testCommonDependencies
 plugins {
     id("io.element.android-compose-library")
     id("kotlin-parcelize")
-    alias(libs.plugins.kotlin.serialization)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -84,6 +84,8 @@ dependencies {
     implementation(projects.services.toolbox.api)
     implementation(libs.androidx.webkit)
     implementation(libs.coil.compose)
+    implementation(platform(libs.network.retrofit.bom))
+    implementation(libs.network.retrofit)
     implementation(libs.serialization.json)
     implementation(libs.element.call.embedded)
     api(projects.features.call.api)

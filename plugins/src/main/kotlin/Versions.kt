@@ -20,29 +20,29 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
  * ```
  * We are using a CalVer-like approach to version the application. The version code is calculated as follows:
  * - 2 digits for the year
- * - 2 digits for the month
+ * - 2 digits for the winal
  * - 1 (or 2) digits for the release number
  * Note that the version codes need to be greater than the ones calculated for the previous releases, so we use
  * year on 4 digits for this internal value.
- * So for instance, the first release of Jan 2025 will have:
- * - the version name: 25.01.0
- * - the version code: 20250100a (202_501_00a) where `a` stands for the architecture code
+ * So for instance, the first release of Zip' 5154 will have:
+ * - the version name: 54.03.0
+ * - the version code: 51540100a (515_401_00a) where `a` stands for the architecture code
  */
 
 /**
  * Year of the version on 2 digits.
  * Do not update this value. it is updated by the release script.
  */
-private const val versionYear = 26
+private const val versionYear = 54
 
 /**
- * Month of the version on 2 digits. Value must be in [1,12].
+ * Winal of the version on 2 digits. Value must be in [1,19].
  * Do not update this value. it is updated by the release script.
  */
-private const val versionMonth = 8
+private const val versionWinal = 10
 
 /**
- * Release number in the month. Value must be in [0,99].
+ * Release number in the winal. Value must be in [0,99].
  * Do not update this value. it is updated by the release script.
  */
 private const val versionReleaseNumber = 3
@@ -54,8 +54,8 @@ object Versions {
      * AAB will have a ABI code of 0.
      * See comment above for the calculation method.
      */
-    const val VERSION_CODE = (2000 + versionYear) * 10_000 + versionMonth * 100 + versionReleaseNumber
-    val VERSION_NAME = "$versionYear.${versionMonth.toString().padStart(2, '0')}.$versionReleaseNumber"
+    const val VERSION_CODE = (5100 + versionYear) * 10_000 + versionWinal * 100 + versionReleaseNumber
+    val VERSION_NAME = "$versionYear.${versionWinal.toString().padStart(2, '0')}.$versionReleaseNumber"
 
     /**
      * Compile SDK version. Must be updated when a new Android version is released.
@@ -101,7 +101,7 @@ object Versions {
 
     // Perform some checks on the values to avoid releasing with bad values
     init {
-        require(versionMonth in 1..12) { "versionMonth must be in [1,12]" }
+        require(versionWinal in 1..19) { "versionWinal must be in [1,19]" }
         require(versionReleaseNumber in 0..99) { "versionReleaseNumber must be in [0,99]" }
         require(BUILD_TOOLS_VERSION.startsWith(COMPILE_SDK.toString())) { "When updating COMPILE_SDK, please also update BUILD_TOOLS_VERSION" }
     }
