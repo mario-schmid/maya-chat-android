@@ -48,14 +48,13 @@ internal fun TimelineItemDaySeparatorView(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .semantics { heading() }
-                .offset(y = 12.dp)
         ) {
             // Maya Badge equivalent
             Row(
@@ -64,10 +63,9 @@ internal fun TimelineItemDaySeparatorView(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy((-14).dp),
+                    verticalArrangement = Arrangement.spacedBy((-13).dp),
                     modifier = Modifier
                         .padding(end = 8.dp)
-                        .offset(y = -20.dp)
                 ) {
                     Image(
                         painter = painterResource(id = mayaDate.toneResId),
@@ -86,7 +84,8 @@ internal fun TimelineItemDaySeparatorView(
                         color = Color(0xFF5FB336),
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp
-                    )
+                    ),
+                    modifier = Modifier.offset(y = (16).dp)
                 )
             }
 
@@ -95,6 +94,7 @@ internal fun TimelineItemDaySeparatorView(
                 text = model.formattedDate,
                 style = ElementTheme.typography.fontBodyMdMedium,
                 color = ElementTheme.colors.textPrimary,
+                modifier = Modifier.offset(y = (16).dp)
             )
         }
     }
