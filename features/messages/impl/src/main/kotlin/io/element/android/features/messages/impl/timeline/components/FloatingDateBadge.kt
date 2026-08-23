@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
+import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Surface
@@ -49,6 +50,9 @@ import io.element.android.libraries.designsystem.theme.floatingDateBadgeBackgrou
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -79,7 +83,6 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
     }
 
     // Store the formatted date so we recompute it lazily and can keep it around even if we need to dispose the badge because the timeline items changed
-    var formattedDate: String? by remember { mutableStateOf(null) }
     // Update the formatted date when we have a new non-null timestamp
     val formattedDate: AnnotatedString? = remember(lastVisibleItemWithTimestamp) {
         val item = lastVisibleItemWithTimestamp ?: return@remember null
@@ -158,7 +161,7 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
 
 @Composable
 internal fun FloatingDateBadge(
-    dateText: String,
+    dateText: CharSequence,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -167,9 +170,10 @@ internal fun FloatingDateBadge(
         color = ElementTheme.colors.floatingDateBadgeBackground,
         shadowElevation = 4.dp,
     ) {
+        val annotatedDateText = dateText as? AnnotatedString ?: AnnotatedString(text = dateText.toString())
         Text(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            text = dateText,
+            text = annotatedDateText,
             style = ElementTheme.typography.fontBodyMdMedium,
             color = ElementTheme.colors.textPrimary,
         )
