@@ -29,11 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
+import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Surface
@@ -42,6 +48,9 @@ import io.element.android.libraries.designsystem.theme.floatingDateBadgeBackgrou
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -72,10 +81,40 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
     }
 
     // Store the formatted date so we recompute it lazily and can keep it around even if we need to dispose the badge because the timeline items changed
-    var formattedDate: String? by remember { mutableStateOf(null) }
     // Update the formatted date when we have a new non-null timestamp
-    LaunchedEffect(lastVisibleItemWithTimestamp) {
-        lastVisibleItemWithTimestamp?.formattedDate()?.let { formattedDate = it }
+    val formattedDate: AnnotatedString? = remember(lastVisibleItemWithTimestamp) {
+        val item = lastVisibleItemWithTimestamp ?: return@remember null
+
+        val timestamp = when (item) {
+            is TimelineItem.Event -> item.sentTimeMillis
+            is TimelineItem.Virtual -> (item.model as? TimelineItemDaySeparatorModel)?.timestamp
+            is TimelineItem.GroupedEvents -> item.events.firstOrNull()?.sentTimeMillis
+        }
+
+        val baseTimestamp = item.formattedDate()
+        if (timestamp == null || timestamp <= 0L || baseTimestamp.isNullOrEmpty()) {
+            return@remember null
+        }
+
+        val itemDate = Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        val today = LocalDate.now()
+        val yesterday = today.minusDays(1)
+
+        val dateText = when (itemDate) {
+            today -> return@remember null
+            yesterday -> baseTimestamp
+            else -> {
+                val mayaDate = MayaCalendarHelper.getMayaDate(timestamp)
+                "${mayaDate.day} ${mayaDate.winalName}"
+            }
+        }
+        buildAnnotatedString {
+            withStyle(SpanStyle(color = Color(0xFF5FB336))) {
+                append(dateText)
+            }
+        }
     }
 
     val isAtBottom by remember {
@@ -122,7 +161,7 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
 
 @Composable
 internal fun FloatingDateBadge(
-    dateText: String,
+    dateText: CharSequence,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -131,9 +170,10 @@ internal fun FloatingDateBadge(
         color = ElementTheme.colors.floatingDateBadgeBackground,
         shadowElevation = 4.dp,
     ) {
+        val annotatedDateText = dateText as? AnnotatedString ?: AnnotatedString(text = dateText.toString())
         Text(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            text = dateText,
+            text = annotatedDateText,
             style = ElementTheme.typography.fontBodyMdMedium,
             color = ElementTheme.colors.textPrimary,
         )

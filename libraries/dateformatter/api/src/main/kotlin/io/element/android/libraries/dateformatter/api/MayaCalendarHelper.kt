@@ -6,12 +6,12 @@ import java.time.LocalDate
 import io.element.android.libraries.dateformatter.api.R
 
 object MayaCalendarHelper {
-    private val strWinal = listOf("Pop'", "Wo'", "Zip'", "Zotz'", "Tzek", "Xul", "Yaxkin", "Mol", "Chen", "Yax", "Saq", "Cej",
-        "Mak", "Kankin", "Muwan", "Pax", "Kayab", "Kumku", "Wayeb")
+    private val strWinal = listOf("Pop'", "Wo'", "Sip'", "Sotz'", "Tz'ek", "Xul", "Yaxk'in", "Mol", "Ch'en", "Yax", "Sak", "Cej",
+        "Mak", "Kank'in", "Muwan", "Pax", "K'ayab", "Kumk'u", "Wayeb")
     
-    private val strTone = listOf("Jun", "Kab'", "Oxib'", "Kajib'", "Job'", "Waqib'", "Wuqub'", "Wajxaqib'", "B'elejeb'", "Lajuj", "Junlajuj'", "Kablajuj", "Oxlajuj")
+    private val strTone = listOf("Jun", "Keb'", "Oxib'", "Kajib'", "Job'", "Waqib'", "Wuqub'", "Wajxaqib'", "B'elejeb'", "Lajuj", "Julajuj'", "Kab'lajuj", "Oxlajuj")
     
-    private val strNahual = listOf("B'atz'", "E", "Aj", "I'x", "Tz'ikin", "Ajmaq", "No'j", "Tijax", "Kawoq", "Ajpu", "Imox", "Iq'", "Aq'ab'al", "K'at", "Kan", "Kame", "Kej", "Q'anil", "Toj", "Tz'i")
+    private val strNahual = listOf("B'atz'", "E", "Aj", "Ix", "Tz'ikin", "Ajmaq", "No'j", "Tijax", "Kawoq", "Ajpu", "Imox", "Iq'", "Aq'ab'al", "K'at", "Kan", "Kame", "Kej", "Q'anil", "Toj", "Tz'i'")
 
     private val nahualResIds = listOf(
         R.drawable.n00_batz, R.drawable.n01_e, R.drawable.n02_aj, R.drawable.n03_ix,

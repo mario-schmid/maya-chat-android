@@ -59,21 +59,17 @@ class RoomListRoomSummaryFactory(
                     useRelative = true,
                 )
                 if (latestEventTimestamp != null && baseTimestamp.isNotEmpty()) {
-                    val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
                     val isToday = Instant.ofEpochMilli(latestEventTimestamp)
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate() == LocalDate.now()
                     buildAnnotatedString {
-                        if (isToday) {
-                            withStyle(SpanStyle(color = Color(0xFF5FB336))) {
+                        withStyle(SpanStyle(color = Color(0xFF5FB336))) {
+                            if (isToday) {
                                 append(baseTimestamp)
-                            }
-                        } else {
-                            withStyle(SpanStyle(color = Color(0xFF5FB336))) {
+                            } else {
+                                val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
                                 append("${mayaDate.day} ${mayaDate.winalName}")
                             }
-                            append("  ")
-                            append(baseTimestamp)
                         }
                     }
                 } else {
