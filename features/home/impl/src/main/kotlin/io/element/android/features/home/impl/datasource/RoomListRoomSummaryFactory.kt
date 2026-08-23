@@ -60,6 +60,7 @@ class RoomListRoomSummaryFactory(
                                 val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
                                 append("${mayaDate.day} ${mayaDate.winalName}")
                             }
+                        }
                     }
                 } else {
                     baseTimestamp
