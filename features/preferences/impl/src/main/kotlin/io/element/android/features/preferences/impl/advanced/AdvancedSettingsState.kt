@@ -21,6 +21,9 @@ data class AdvancedSettingsState(
     val isSharePresenceEnabled: Boolean,
     val mediaOptimizationState: MediaOptimizationState?,
     val theme: ThemeOption,
+    val themeColor: String,
+    val isChatBackgroundImageEnabled: Boolean,
+    val chatBackgroundImageUri: String?,
     val availableThemeOptions: ImmutableList<ThemeOption>,
     val mediaPreviewConfigState: MediaPreviewConfigState,
     val liveLocationMinimumDistanceUpdate: Int?,
@@ -57,6 +60,12 @@ enum class ThemeOption : DropdownOption {
         @Composable
         @ReadOnlyComposable
         override fun getText(): String = stringResource(R.string.theme_dark)
+    },
+
+    Color {
+        @Composable
+        @ReadOnlyComposable
+        override fun getText(): String = stringResource(R.string.theme_color)
     },
 
     Black {

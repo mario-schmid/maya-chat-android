@@ -505,7 +505,7 @@ private fun StandardLayout(
                                 modifier = Modifier
                                     .clip(CircleShape)
                                     .size(30.dp)
-                                    .background(ElementTheme.colors.iconPrimary)
+                                    .background(ElementTheme.colors.bgActionPrimaryRest)
                                     .padding(3.dp),
                                 imageVector = CompoundIcons.Plus(),
                                 contentDescription = stringResource(R.string.rich_text_editor_a11y_add_attachment),

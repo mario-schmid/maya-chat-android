@@ -52,6 +52,15 @@ class AdvancedSettingsPresenter(
         val theme = remember(isBlackThemeAllowed) {
             appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
         }.collectAsState(initial = Theme.System)
+        val themeColor by remember {
+            appPreferencesStore.getThemeColorFlow()
+        }.collectAsState(initial = "#4d00b2")
+        val isChatBackgroundImageEnabled by remember {
+            appPreferencesStore.isChatBackgroundImageEnabledFlow()
+        }.collectAsState(initial = false)
+        val chatBackgroundImageUri by remember {
+            appPreferencesStore.getChatBackgroundImageFlow()
+        }.collectAsState(initial = null)
 
         val liveLocationMinimumDistanceUpdate by produceState<Int?>(null) {
             appPreferencesStore.getLiveLocationMinimumDistanceInMetersUpdateFlow().collect { value = it }
@@ -66,6 +75,7 @@ class AdvancedSettingsPresenter(
                     Theme.Dark -> ThemeOption.Dark
                     Theme.Black -> ThemeOption.Black
                     Theme.Light -> ThemeOption.Light
+                    Theme.Color -> ThemeOption.Color
                 }
             }
         }
@@ -117,17 +127,27 @@ class AdvancedSettingsPresenter(
                         ThemeOption.Dark -> appPreferencesStore.setTheme(Theme.Dark.name)
                         ThemeOption.Black -> appPreferencesStore.setTheme(Theme.Black.name)
                         ThemeOption.Light -> appPreferencesStore.setTheme(Theme.Light.name)
+                        ThemeOption.Color -> appPreferencesStore.setTheme(Theme.Color.name)
                     }
                 }
-                is AdvancedSettingsEvent.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
-                is AdvancedSettingsEvent.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
-                is AdvancedSettingsEvent.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvents.SetThemeColor -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setThemeColor(event.colorHex)
+                }
+                is AdvancedSettingsEvents.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setChatBackgroundImageEnabled(event.enabled)
+                }
+                is AdvancedSettingsEvents.SetChatBackgroundImage -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setChatBackgroundImage(event.uri)
+                }
+                is AdvancedSettingsEvents.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
+                is AdvancedSettingsEvents.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
+                is AdvancedSettingsEvents.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
                     appPreferencesStore.setLiveLocationMinimumDistanceInMetersUpdate(event.value)
                 }
-                is AdvancedSettingsEvent.SetCompressImages -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvents.SetCompressImages -> sessionCoroutineScope.launch {
                     sessionPreferencesStore.setOptimizeImages(event.compress)
                 }
-                is AdvancedSettingsEvent.SetVideoUploadQuality -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvents.SetVideoUploadQuality -> sessionCoroutineScope.launch {
                     sessionPreferencesStore.setVideoCompressionPreset(event.videoPreset)
                 }
             }
@@ -138,6 +158,9 @@ class AdvancedSettingsPresenter(
             isSharePresenceEnabled = isSharePresenceEnabled,
             mediaOptimizationState = mediaOptimizationState,
             theme = themeOption,
+            themeColor = themeColor,
+            isChatBackgroundImageEnabled = isChatBackgroundImageEnabled,
+            chatBackgroundImageUri = chatBackgroundImageUri,
             availableThemeOptions = availableThemeOptions,
             mediaPreviewConfigState = mediaPreviewConfigState,
             liveLocationMinimumDistanceUpdate = liveLocationMinimumDistanceUpdate,

@@ -63,14 +63,12 @@ class RoomListRoomSummaryFactory(
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate() == LocalDate.now()
                     buildAnnotatedString {
-                        withStyle(SpanStyle(color = Color(0xFF5FB336))) {
                             if (isToday) {
                                 append(baseTimestamp)
                             } else {
                                 val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
                                 append("${mayaDate.day} ${mayaDate.winalName}")
                             }
-                        }
                     }
                 } else {
                     baseTimestamp

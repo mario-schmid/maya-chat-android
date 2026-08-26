@@ -113,9 +113,7 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
             }
         }
         buildAnnotatedString {
-            withStyle(SpanStyle(color = Color(0xFF5FB336))) {
                 append(dateText)
-            }
         }
     }
 

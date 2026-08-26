@@ -43,8 +43,9 @@ class AdvancedSettingsPresenterTest {
                 assertThat(isSharePresenceEnabled).isTrue()
                 assertThat(mediaOptimizationState).isNull()
                 assertThat(theme).isEqualTo(ThemeOption.System)
+                assertThat(themeColor).isEqualTo("#4d00b2")
                 assertThat(availableThemeOptions).isEqualTo(
-                    listOf(ThemeOption.System, ThemeOption.Light, ThemeOption.Dark).toImmutableList()
+                    listOf(ThemeOption.System, ThemeOption.Light, ThemeOption.Dark, ThemeOption.Color).toImmutableList()
                 )
                 assertThat(mediaPreviewConfigState.hideInviteAvatars).isFalse()
                 assertThat(mediaPreviewConfigState.timelineMediaPreviewValue).isEqualTo(MediaPreviewValue.On)
@@ -194,18 +195,67 @@ class AdvancedSettingsPresenterTest {
 
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.System)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Dark))
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.Dark))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Dark)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Light))
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.Color))
+            }
+            with(awaitItem()) {
+                assertThat(theme).isEqualTo(ThemeOption.Color)
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.Light))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Light)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.System))
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.System))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.System)
+            }
+        }
+    }
+
+    @Test
+    fun `present - change theme color`() = runTest {
+        val presenter = createAdvancedSettingsPresenter()
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            skipItems(1)
+
+            with(awaitItem()) {
+                assertThat(themeColor).isEqualTo("#4d00b2")
+                eventSink(AdvancedSettingsEvents.SetThemeColor("#FF5722"))
+            }
+            with(awaitItem()) {
+                assertThat(themeColor).isEqualTo("#FF5722")
+            }
+        }
+    }
+
+    @Test
+    fun `present - chat background image settings`() = runTest {
+        val presenter = createAdvancedSettingsPresenter()
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            skipItems(1)
+
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isFalse()
+                assertThat(chatBackgroundImageUri).isNull()
+                eventSink(AdvancedSettingsEvents.SetChatBackgroundImageEnabled(true))
+            }
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isTrue()
+                eventSink(AdvancedSettingsEvents.SetChatBackgroundImage("uri://image"))
+            }
+            with(awaitItem()) {
+                assertThat(chatBackgroundImageUri).isEqualTo("uri://image")
+                eventSink(AdvancedSettingsEvents.SetChatBackgroundImageEnabled(false))
+            }
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isFalse()
             }
         }
     }

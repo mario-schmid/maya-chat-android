@@ -25,6 +25,9 @@ class InMemoryAppPreferencesStore(
     hideInviteAvatars: Boolean? = null,
     timelineMediaPreviewValue: MediaPreviewValue? = null,
     theme: String? = null,
+    themeColor: String = "#4d00b2",
+    chatBackgroundImageUri: String? = null,
+    isChatBackgroundImageEnabled: Boolean = false,
     liveLocationMinimumDistanceUpdate: Int = 10,
     logLevel: LogLevel = LogLevel.INFO,
     traceLogPacks: Set<TraceLogPack> = emptySet(),
@@ -39,6 +42,9 @@ class InMemoryAppPreferencesStore(
     private val isDeveloperModeEnabled = MutableStateFlow(isDeveloperModeEnabled)
     private val customElementCallBaseUrl = MutableStateFlow(customElementCallBaseUrl)
     private val theme = MutableStateFlow(theme)
+    private val themeColor = MutableStateFlow(themeColor)
+    private val chatBackgroundImage = MutableStateFlow(chatBackgroundImageUri)
+    private val isChatBackgroundImageEnabled = MutableStateFlow(isChatBackgroundImageEnabled)
     private val liveLocationMinimumDistanceUpdate = MutableStateFlow(liveLocationMinimumDistanceUpdate)
     private val logLevel = MutableStateFlow(logLevel)
     private val tracingLogPacks = MutableStateFlow(traceLogPacks)
@@ -74,6 +80,30 @@ class InMemoryAppPreferencesStore(
 
     override fun getThemeFlow(): Flow<String?> {
         return theme
+    }
+
+    override suspend fun setThemeColor(colorHex: String) {
+        this.themeColor.value = colorHex
+    }
+
+    override fun getThemeColorFlow(): Flow<String> {
+        return themeColor
+    }
+
+    override suspend fun setChatBackgroundImage(uri: String?) {
+        chatBackgroundImage.value = uri
+    }
+
+    override fun getChatBackgroundImageFlow(): Flow<String?> {
+        return chatBackgroundImage
+    }
+
+    override suspend fun setChatBackgroundImageEnabled(enabled: Boolean) {
+        isChatBackgroundImageEnabled.value = enabled
+    }
+
+    override fun isChatBackgroundImageEnabledFlow(): Flow<Boolean> {
+        return isChatBackgroundImageEnabled
     }
 
     override suspend fun setLiveLocationMinimumDistanceInMetersUpdate(value: Int) {

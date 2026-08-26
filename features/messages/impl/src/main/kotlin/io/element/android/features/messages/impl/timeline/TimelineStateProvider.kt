@@ -9,6 +9,8 @@
 package io.element.android.features.messages.impl.timeline
 
 import io.element.android.features.messages.impl.crypto.sendfailure.resolve.ResolveVerifiedUserSendFailureState
+import io.element.android.compound.theme.Theme
+import io.element.android.features.messages.impl.ChatBackgroundImageState
 import io.element.android.features.messages.impl.crypto.sendfailure.resolve.aResolveVerifiedUserSendFailureState
 import io.element.android.features.messages.impl.timeline.components.MessageShieldData
 import io.element.android.features.messages.impl.timeline.components.receipt.aReadReceiptData
@@ -62,6 +64,11 @@ fun aTimelineState(
     displayThreadSummaries: Boolean = false,
     displayJumpToUnread: Boolean = false,
     jumpToUnread: JumpToUnreadState = JumpToUnreadState.Hidden,
+    chatBackgroundImageState: ChatBackgroundImageState = ChatBackgroundImageState(
+        isEnabled = false,
+        uri = null,
+        theme = Theme.System,
+    ),
     newEventState: NewEventState = NewEventState.None,
     eventSink: (TimelineEvent) -> Unit = {},
 ): TimelineState {
@@ -84,6 +91,7 @@ fun aTimelineState(
         displayThreadSummaries = displayThreadSummaries,
         displayJumpToUnread = displayJumpToUnread,
         jumpToUnread = jumpToUnread,
+        chatBackgroundImageState = chatBackgroundImageState,
         eventSink = eventSink,
     )
 }

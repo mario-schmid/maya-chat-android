@@ -8,11 +8,20 @@
 
 package io.element.android.features.preferences.impl.advanced
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,12 +31,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import im.vector.app.features.analytics.plan.Interaction
 import io.element.android.compound.theme.ElementTheme
+import io.element.android.compound.theme.parseColorOrNull
 import io.element.android.features.preferences.impl.R
 import io.element.android.libraries.architecture.coverage.ExcludeFromCoverage
 import io.element.android.libraries.designsystem.components.dialogs.ListDialog
@@ -92,6 +104,71 @@ fun AdvancedSettingsView(
                 state.eventSink(AdvancedSettingsEvent.SetTheme(themeOption))
             }
         )
+        var displayColorPickerDialog by remember { mutableStateOf(false) }
+        val pickImageLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+            if (uri != null) {
+                state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImage(uri.toString()))
+            }
+        }
+
+        if (state.theme == ThemeOption.Color) {
+            ListItem(
+                content = {
+                    Text(text = stringResource(id = R.string.screen_advanced_settings_theme_color))
+                },
+                trailingContent = ListItemContent.Text(
+                    text = state.themeColor.uppercase()
+                ),
+                onClick = { displayColorPickerDialog = true }
+            )
+            ListItem(
+                content = {
+                    Text(text = stringResource(id = R.string.screen_advanced_settings_background_image))
+                },
+                trailingContent = ListItemContent.Switch(
+                    checked = state.isChatBackgroundImageEnabled,
+                ),
+                onClick = {
+                    state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImageEnabled(!state.isChatBackgroundImageEnabled))
+                }
+            )
+            if (state.isChatBackgroundImageEnabled) {
+                ListItem(
+                    modifier = Modifier.combinedClickable(
+                        onClick = {
+                            pickImageLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        onLongClick = {
+                            state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImage(null))
+                        }
+                    ),
+                    content = {
+                        Text(text = stringResource(id = R.string.screen_advanced_settings_choose_background_image))
+                    },
+                    trailingContent = ListItemContent.Text(
+                        text = if (state.chatBackgroundImageUri != null) {
+                            stringResource(R.string.common_custom)
+                        } else {
+                            stringResource(R.string.common_default)
+                        }
+                    ),
+                )
+            }
+        }
+        if (displayColorPickerDialog) {
+            ColorThemePickerDialog(
+                initialColorHex = state.themeColor,
+                onSubmit = { newColorHex ->
+                    state.eventSink(AdvancedSettingsEvents.SetThemeColor(newColorHex))
+                    displayColorPickerDialog = false
+                },
+                onDismiss = { displayColorPickerDialog = false }
+            )
+        }
         ListItem(
             content = {
                 Text(text = stringResource(id = CommonStrings.action_view_source))
