@@ -130,24 +130,24 @@ class AdvancedSettingsPresenter(
                         ThemeOption.Color -> appPreferencesStore.setTheme(Theme.Color.name)
                     }
                 }
-                is AdvancedSettingsEvents.SetThemeColor -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetThemeColor -> sessionCoroutineScope.launch {
                     appPreferencesStore.setThemeColor(event.colorHex)
                 }
-                is AdvancedSettingsEvents.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
                     appPreferencesStore.setChatBackgroundImageEnabled(event.enabled)
                 }
-                is AdvancedSettingsEvents.SetChatBackgroundImage -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetChatBackgroundImage -> sessionCoroutineScope.launch {
                     appPreferencesStore.setChatBackgroundImage(event.uri)
                 }
-                is AdvancedSettingsEvents.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
-                is AdvancedSettingsEvents.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
-                is AdvancedSettingsEvents.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
+                is AdvancedSettingsEvent.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
+                is AdvancedSettingsEvent.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
                     appPreferencesStore.setLiveLocationMinimumDistanceInMetersUpdate(event.value)
                 }
-                is AdvancedSettingsEvents.SetCompressImages -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetCompressImages -> sessionCoroutineScope.launch {
                     sessionPreferencesStore.setOptimizeImages(event.compress)
                 }
-                is AdvancedSettingsEvents.SetVideoUploadQuality -> sessionCoroutineScope.launch {
+                is AdvancedSettingsEvent.SetVideoUploadQuality -> sessionCoroutineScope.launch {
                     sessionPreferencesStore.setVideoCompressionPreset(event.videoPreset)
                 }
             }
