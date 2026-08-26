@@ -26,6 +26,9 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import im.vector.app.features.analytics.plan.PinUnpinAction
 import io.element.android.appconfig.MessageComposerConfig
+import io.element.android.compound.theme.Theme
+import io.element.android.compound.theme.mapToTheme
+import io.element.android.libraries.preferences.api.store.AppPreferencesStore
 import io.element.android.features.location.api.live.ActiveLiveLocationShareManager
 import io.element.android.features.location.api.live.isCurrentlySharing
 import io.element.android.features.messages.api.timeline.HtmlConverterProvider
@@ -110,6 +113,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class MessagesPresenter(
     @Assisted private val navigator: MessagesNavigator,
     private val room: JoinedRoom,
+    private val appPreferencesStore: AppPreferencesStore,
     @Assisted private val composerPresenter: Presenter<MessageComposerState>,
     voiceMessageComposerPresenterFactory: DefaultVoiceMessageComposerPresenter.Factory,
     @Assisted private val timelinePresenter: Presenter<TimelineState>,
@@ -183,6 +187,19 @@ class MessagesPresenter(
 
         val canOpenThreadList by featureFlagService.isFeatureEnabledFlow(FeatureFlags.Threads).collectAsState(initial = false)
         val isCurrentlySharingLiveLocationInRoom by remember { liveLocationShareManager.isCurrentlySharing(room.roomId) }.collectAsState()
+
+        val isBlackThemeAllowed by remember {
+            featureFlagService.isFeatureEnabledFlow(FeatureFlags.AllowBlackTheme)
+        }.collectAsState(initial = false)
+        val theme by remember(isBlackThemeAllowed) {
+            appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
+        }.collectAsState(initial = Theme.System)
+        val isChatBackgroundImageEnabled by remember {
+            appPreferencesStore.isChatBackgroundImageEnabledFlow()
+        }.collectAsState(initial = false)
+        val chatBackgroundImageUri by remember {
+            appPreferencesStore.getChatBackgroundImageFlow()
+        }.collectAsState(initial = null)
 
         val userEventPermissions by room.permissionsAsState(UserEventPermissions.DEFAULT) { perms ->
             perms.userEventPermissions()
@@ -355,6 +372,11 @@ class MessagesPresenter(
             roomMemberModerationState = roomMemberModerationState,
             topBarSharedHistoryIcon = topBarSharedHistoryIcon,
             successorRoom = roomInfo.successorRoom,
+            chatBackgroundImageState = ChatBackgroundImageState(
+                isEnabled = isChatBackgroundImageEnabled,
+                uri = chatBackgroundImageUri,
+                theme = theme,
+            ),
             threads = Threads(
                 hasThreads = canOpenThreadList && threadsList.isNotEmpty(),
                 // TODO calculate this properly based on the thread list and the read state of each thread

@@ -64,6 +64,8 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
@@ -78,7 +80,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import coil3.compose.AsyncImage
 import io.element.android.compound.theme.ElementTheme
+import io.element.android.compound.theme.Theme
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.messages.impl.crypto.sendfailure.resolve.ResolveVerifiedUserSendFailureView
 import io.element.android.features.messages.impl.timeline.components.FloatingDateBadgeOverlay
@@ -95,6 +99,8 @@ import io.element.android.features.messages.impl.timeline.model.event.TimelineIt
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
 import io.element.android.features.messages.impl.timeline.protection.TimelineProtectionState
 import io.element.android.features.messages.impl.timeline.protection.aTimelineProtectionState
+import io.element.android.libraries.androidutils.system.copyToClipboard
+import io.element.android.libraries.designsystem.R as DesignSystemR
 import io.element.android.libraries.designsystem.atomic.atoms.UnreadIndicatorAtom
 import io.element.android.libraries.designsystem.components.dialogs.AlertDialog
 import io.element.android.libraries.designsystem.preview.ElementPreview
@@ -199,62 +205,52 @@ fun TimelineView(
 
     // Animate alpha when timeline is first displayed, to avoid flashes or glitching when viewing rooms
     AnimatedVisibility(visible = true, enter = fadeIn()) {
-        val composeLocalTimelineEventRendererConfig = remember(state.useNewTimelineEventRenderer, state.timelineRoomInfo.currentUserId) {
-            ComposeLocalTimelineEventRendererConfig(
-                isComposeRendererEnabled = state.useNewTimelineEventRenderer,
-                currentUserId = state.timelineRoomInfo.currentUserId,
-            )
-        }
-        CompositionLocalProvider(LocalTimelineEventRendererConfig provides composeLocalTimelineEventRendererConfig) {
-            Box(modifier) {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .nestedScroll(nestedScrollConnection)
-                        .testTag(TestTags.timeline),
-                    state = lazyListState,
-                    reverseLayout = true,
-                    contentPadding = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues() + PaddingValues(top = 64.dp, bottom = 8.dp),
-                ) {
-                    items(
-                        items = state.timelineItems,
-                        contentType = { timelineItem -> timelineItem.contentType() },
-                        key = { timelineItem -> timelineItem.identifier() },
-                    ) { timelineItem ->
-                        TimelineItemRow(
-                            timelineItem = timelineItem,
-                            timelineMode = state.timelineMode,
-                            timelineRoomInfo = state.timelineRoomInfo,
-                            timelineProtectionState = timelineProtectionState,
-                            isLastOutgoingMessage = state.isLastOutgoingMessage(timelineItem.identifier()),
-                            focusedEventId = state.focusedEventId,
-                            displayThreadSummaries = state.displayThreadSummaries,
-                            selectionData = TimelineItemSelectionData(
-                                isSelectionModeActive = isSelectionModeActive,
-                                progress = selectionProgress,
-                                isSelected = state.isSelected(timelineItem),
-                                canBeSelected = state.canSelect(timelineItem),
-                            ),
-                            onUserDataClick = onUserDataClick,
-                            onLinkClick = onLinkClick,
-                            onLinkLongClick = ::onLinkLongClick,
-                            onContentClick = { event ->
-                                if (state.canSelect(event)) onToggleSelection(event) else onContentClick(event)
-                            },
-                            onGalleryItemClick = onGalleryItemClick,
-                            onLongClick = { event ->
-                                if (state.canSelect(event)) onToggleSelection(event) else onMessageLongClick(event)
-                            },
-                            inReplyToClick = ::inReplyToClick,
-                            onReactionClick = onReactionClick,
-                            onReactionLongClick = onReactionLongClick,
-                            onMoreReactionsClick = onMoreReactionsClick,
-                            onReadReceiptClick = onReadReceiptClick,
-                            onSwipeToReply = onSwipeToReply,
-                            onJoinCallClick = onJoinCallClick,
-                            eventSink = state.eventSink,
-                        )
-                    }
+        Box(modifier) {
+            if (state.chatBackgroundImageState.isEnabled && state.chatBackgroundImageState.theme == Theme.Color) {
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    model = state.chatBackgroundImageState.uri ?: DesignSystemR.drawable.leaves,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(nestedScrollConnection)
+                    .testTag(TestTags.timeline),
+                state = lazyListState,
+                reverseLayout = true,
+                contentPadding = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal).asPaddingValues() + PaddingValues(top = 64.dp, bottom = 8.dp),
+            ) {
+                items(
+                    items = state.timelineItems,
+                    contentType = { timelineItem -> timelineItem.contentType() },
+                    key = { timelineItem -> timelineItem.identifier() },
+                ) { timelineItem ->
+                    TimelineItemRow(
+                        timelineItem = timelineItem,
+                        timelineMode = state.timelineMode,
+                        timelineRoomInfo = state.timelineRoomInfo,
+                        timelineProtectionState = timelineProtectionState,
+                        isLastOutgoingMessage = state.isLastOutgoingMessage(timelineItem.identifier()),
+                        focusedEventId = state.focusedEventId,
+                        displayThreadSummaries = state.displayThreadSummaries,
+                        onUserDataClick = onUserDataClick,
+                        onLinkClick = onLinkClick,
+                        onLinkLongClick = ::onLinkLongClick,
+                        onContentClick = onContentClick,
+                        onGalleryItemClick = onGalleryItemClick,
+                        onLongClick = onMessageLongClick,
+                        inReplyToClick = ::inReplyToClick,
+                        onReactionClick = onReactionClick,
+                        onReactionLongClick = onReactionLongClick,
+                        onMoreReactionsClick = onMoreReactionsClick,
+                        onReadReceiptClick = onReadReceiptClick,
+                        onSwipeToReply = onSwipeToReply,
+                        onJoinCallClick = onJoinCallClick,
+                        eventSink = state.eventSink,
+                    )
                 }
 
                 FocusRequestStateView(

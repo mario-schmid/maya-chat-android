@@ -16,9 +16,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.theme.Theme
+import io.element.android.compound.theme.hsvSaturation
 import io.element.android.compound.theme.mapToTheme
+import io.element.android.compound.theme.parseColorOrNull
 import io.element.android.compound.tokens.generated.SemanticColors
 import io.element.android.libraries.core.meta.BuildMeta
 import io.element.android.libraries.core.meta.BuildType
@@ -67,12 +70,22 @@ fun ElementThemeApp(
     val theme by remember(isBlackThemeAllowed) {
         appPreferencesStore.getThemeFlow().mapToTheme(allowBlackTheme = isBlackThemeAllowed)
     }.collectAsState(initial = Theme.System)
-    LaunchedEffect(theme) {
+    val themeColorHex by remember {
+        appPreferencesStore.getThemeColorFlow()
+    }.collectAsState(initial = "#4d00b2")
+    val mainThemeColor = remember(themeColorHex) {
+        parseColorOrNull(themeColorHex) ?: Color(0xFF4D00B2)
+    }
+    LaunchedEffect(theme, mainThemeColor) {
         AppCompatDelegate.setDefaultNightMode(
             when (theme) {
                 Theme.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 Theme.Light -> AppCompatDelegate.MODE_NIGHT_NO
                 Theme.Dark, Theme.Black -> AppCompatDelegate.MODE_NIGHT_YES
+                Theme.Color -> {
+                    val isFontBlack = mainThemeColor.hsvSaturation() * 100f < 50f
+                    if (isFontBlack) AppCompatDelegate.MODE_NIGHT_NO else AppCompatDelegate.MODE_NIGHT_YES
+                }
             }
         )
     }
@@ -81,6 +94,7 @@ fun ElementThemeApp(
     ) {
         ElementTheme(
             theme = theme,
+            mainThemeColor = mainThemeColor,
             content = content,
             compoundLight = compoundLight,
             compoundDark = compoundDark,
