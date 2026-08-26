@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModel
-import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelProvider
+import io.element.android.features.messages.impl.timeline.model.virtual.TimelineItemDaySeparatorModelPreviewParam
 import io.element.android.libraries.dateformatter.api.MayaCalendarHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight

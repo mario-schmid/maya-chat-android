@@ -109,7 +109,7 @@ fun AdvancedSettingsView(
             ActivityResultContracts.PickVisualMedia()
         ) { uri ->
             if (uri != null) {
-                state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImage(uri.toString()))
+                state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImage(uri.toString()))
             }
         }
 
@@ -131,7 +131,7 @@ fun AdvancedSettingsView(
                     checked = state.isChatBackgroundImageEnabled,
                 ),
                 onClick = {
-                    state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImageEnabled(!state.isChatBackgroundImageEnabled))
+                    state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(!state.isChatBackgroundImageEnabled))
                 }
             )
             if (state.isChatBackgroundImageEnabled) {
@@ -143,7 +143,7 @@ fun AdvancedSettingsView(
                             )
                         },
                         onLongClick = {
-                            state.eventSink(AdvancedSettingsEvents.SetChatBackgroundImage(null))
+                            state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImage(null))
                         }
                     ),
                     content = {
@@ -163,7 +163,7 @@ fun AdvancedSettingsView(
             ColorThemePickerDialog(
                 initialColorHex = state.themeColor,
                 onSubmit = { newColorHex ->
-                    state.eventSink(AdvancedSettingsEvents.SetThemeColor(newColorHex))
+                    state.eventSink(AdvancedSettingsEvent.SetThemeColor(newColorHex))
                     displayColorPickerDialog = false
                 },
                 onDismiss = { displayColorPickerDialog = false }

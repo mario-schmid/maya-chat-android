@@ -66,7 +66,7 @@ class AdvancedSettingsViewTest : RobolectricTest() {
 
     @Test
     fun `clicking on color theme emits the expected event`() = runAndroidComposeUiTest {
-        val eventsRecorder = EventsRecorder<AdvancedSettingsEvents>()
+        val eventsRecorder = EventsRecorder<AdvancedSettingsEvent>()
         setAdvancedSettingsView(
             state = aAdvancedSettingsState(
                 eventSink = eventsRecorder,
@@ -74,7 +74,7 @@ class AdvancedSettingsViewTest : RobolectricTest() {
         )
         clickOn(CommonStrings.common_appearance)
         clickOn(R.string.theme_color)
-        eventsRecorder.assertSingle(AdvancedSettingsEvents.SetTheme(ThemeOption.Color))
+        eventsRecorder.assertSingle(AdvancedSettingsEvent.SetTheme(ThemeOption.Color))
     }
 
     @Test
