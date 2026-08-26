@@ -198,6 +198,10 @@ class AdvancedSettingsPresenterTest {
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Dark)
+                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Color))
+            }
+            with(awaitItem()) {
+                assertThat(theme).isEqualTo(ThemeOption.Color)
                 eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Light))
             }
             with(awaitItem()) {
@@ -206,6 +210,51 @@ class AdvancedSettingsPresenterTest {
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.System)
+            }
+        }
+    }
+
+    @Test
+    fun `present - change theme color`() = runTest {
+        val presenter = createAdvancedSettingsPresenter()
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            skipItems(1)
+
+            with(awaitItem()) {
+                assertThat(themeColor).isEqualTo("#4d00b2")
+                eventSink(AdvancedSettingsEvent.SetThemeColor("#FF5722"))
+            }
+            with(awaitItem()) {
+                assertThat(themeColor).isEqualTo("#FF5722")
+            }
+        }
+    }
+
+    @Test
+    fun `present - chat background image settings`() = runTest {
+        val presenter = createAdvancedSettingsPresenter()
+        moleculeFlow(RecompositionMode.Immediate) {
+            presenter.present()
+        }.test {
+            skipItems(1)
+
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isFalse()
+                assertThat(chatBackgroundImageUri).isNull()
+                eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(true))
+            }
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isTrue()
+                eventSink(AdvancedSettingsEvent.SetChatBackgroundImage("uri://image"))
+            }
+            with(awaitItem()) {
+                assertThat(chatBackgroundImageUri).isEqualTo("uri://image")
+                eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(false))
+            }
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isFalse()
             }
         }
     }

@@ -92,6 +92,71 @@ fun AdvancedSettingsView(
                 state.eventSink(AdvancedSettingsEvent.SetTheme(themeOption))
             }
         )
+        var displayColorPickerDialog by remember { mutableStateOf(false) }
+        val pickImageLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.PickVisualMedia()
+        ) { uri ->
+            if (uri != null) {
+                state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImage(uri.toString()))
+            }
+        }
+
+        if (state.theme == ThemeOption.Color) {
+            ListItem(
+                content = {
+                    Text(text = stringResource(id = R.string.screen_advanced_settings_theme_color))
+                },
+                trailingContent = ListItemContent.Text(
+                    text = state.themeColor.uppercase()
+                ),
+                onClick = { displayColorPickerDialog = true }
+            )
+            ListItem(
+                content = {
+                    Text(text = stringResource(id = R.string.screen_advanced_settings_background_image))
+                },
+                trailingContent = ListItemContent.Switch(
+                    checked = state.isChatBackgroundImageEnabled,
+                ),
+                onClick = {
+                    state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(!state.isChatBackgroundImageEnabled))
+                }
+            )
+            if (state.isChatBackgroundImageEnabled) {
+                ListItem(
+                    modifier = Modifier.combinedClickable(
+                        onClick = {
+                            pickImageLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        onLongClick = {
+                            state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImage(null))
+                        }
+                    ),
+                    content = {
+                        Text(text = stringResource(id = R.string.screen_advanced_settings_choose_background_image))
+                    },
+                    trailingContent = ListItemContent.Text(
+                        text = if (state.chatBackgroundImageUri != null) {
+                            stringResource(R.string.common_custom)
+                        } else {
+                            stringResource(R.string.common_default)
+                        }
+                    ),
+                )
+            }
+        }
+        if (displayColorPickerDialog) {
+            ColorThemePickerDialog(
+                initialColorHex = state.themeColor,
+                onSubmit = { newColorHex ->
+                    state.eventSink(AdvancedSettingsEvent.SetThemeColor(newColorHex))
+                    displayColorPickerDialog = false
+                },
+                onDismiss = { displayColorPickerDialog = false }
+            )
+        }
         ListItem(
             content = {
                 Text(text = stringResource(id = CommonStrings.action_view_source))

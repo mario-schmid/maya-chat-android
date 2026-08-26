@@ -119,6 +119,15 @@ class AdvancedSettingsPresenter(
                         ThemeOption.Light -> appPreferencesStore.setTheme(Theme.Light.name)
                     }
                 }
+                is AdvancedSettingsEvent.SetThemeColor -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setThemeColor(event.colorHex)
+                }
+                is AdvancedSettingsEvent.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setChatBackgroundImageEnabled(event.enabled)
+                }
+                is AdvancedSettingsEvent.SetChatBackgroundImage -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setChatBackgroundImage(event.uri)
+                }
                 is AdvancedSettingsEvent.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
                 is AdvancedSettingsEvent.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
                 is AdvancedSettingsEvent.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {

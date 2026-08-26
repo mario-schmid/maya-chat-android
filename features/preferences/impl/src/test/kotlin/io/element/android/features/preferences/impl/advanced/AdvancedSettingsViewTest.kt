@@ -65,6 +65,32 @@ class AdvancedSettingsViewTest : RobolectricTest() {
     }
 
     @Test
+    fun `clicking on color theme emits the expected event`() = runAndroidComposeUiTest {
+        val eventsRecorder = EventsRecorder<AdvancedSettingsEvent>()
+        setAdvancedSettingsView(
+            state = aAdvancedSettingsState(
+                eventSink = eventsRecorder,
+            ),
+        )
+        clickOn(CommonStrings.common_appearance)
+        clickOn(R.string.theme_color)
+        eventsRecorder.assertSingle(AdvancedSettingsEvent.SetTheme(ThemeOption.Color))
+    }
+
+    @Test
+    fun `theme color setting is shown when color theme is selected`() = runAndroidComposeUiTest {
+        setAdvancedSettingsView(
+            state = aAdvancedSettingsState(
+                theme = ThemeOption.Color,
+                themeColor = "#22004D",
+            ),
+        )
+        val text = activity!!.getString(R.string.screen_advanced_settings_theme_color)
+        onNodeWithText(text).assertExists()
+        onNodeWithText("#22004D").assertExists()
+    }
+
+    @Test
     fun `black theme is shown when available`() = runAndroidComposeUiTest {
         setAdvancedSettingsView(
             state = aAdvancedSettingsState(
