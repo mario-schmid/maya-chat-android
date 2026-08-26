@@ -52,6 +52,7 @@ class AdvancedSettingsPresenter(
         val theme = remember(isBlackThemeAllowed) {
             appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
         }.collectAsState(initial = Theme.System)
+
         val themeColor by remember {
             appPreferencesStore.getThemeColorFlow()
         }.collectAsState(initial = "#4d00b2")
@@ -142,18 +143,6 @@ class AdvancedSettingsPresenter(
                 is AdvancedSettingsEvent.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
                 is AdvancedSettingsEvent.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
                 is AdvancedSettingsEvent.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
-                is AdvancedSettingsEvents.SetThemeColor -> sessionCoroutineScope.launch {
-                    appPreferencesStore.setThemeColor(event.colorHex)
-                }
-                is AdvancedSettingsEvents.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
-                    appPreferencesStore.setChatBackgroundImageEnabled(event.enabled)
-                }
-                is AdvancedSettingsEvents.SetChatBackgroundImage -> sessionCoroutineScope.launch {
-                    appPreferencesStore.setChatBackgroundImage(event.uri)
-                }
-                is AdvancedSettingsEvents.SetHideInviteAvatars -> mediaPreviewConfigStateStore.setHideInviteAvatars(event.value)
-                is AdvancedSettingsEvents.SetTimelineMediaPreviewValue -> mediaPreviewConfigStateStore.setTimelineMediaPreviewValue(event.value)
-                is AdvancedSettingsEvents.SetLiveLocationMinimumDistanceUpdate -> sessionCoroutineScope.launch {
                     appPreferencesStore.setLiveLocationMinimumDistanceInMetersUpdate(event.value)
                 }
                 is AdvancedSettingsEvent.SetCompressImages -> sessionCoroutineScope.launch {

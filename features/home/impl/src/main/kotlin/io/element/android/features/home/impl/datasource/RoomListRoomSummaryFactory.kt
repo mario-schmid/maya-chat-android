@@ -28,10 +28,6 @@ import io.element.android.libraries.matrix.ui.model.toInviteSender
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import kotlinx.collections.immutable.toImmutableList
 
 @Inject
@@ -42,6 +38,29 @@ class RoomListRoomSummaryFactory(
     fun create(roomSummary: RoomSummary): RoomListRoomSummary {
         val roomInfo = roomSummary.info
         val avatarData = roomInfo.getAvatarData(size = AvatarSize.RoomListItem)
+        
+        val latestEventTimestamp = roomSummary.latestEventTimestamp
+        val baseTimestamp = dateFormatter.format(
+            timestamp = latestEventTimestamp,
+            mode = DateFormatterMode.TimeOrDate,
+            useRelative = true,
+        )
+        
+        val formattedTimestamp = if (latestEventTimestamp != null && baseTimestamp.isNotEmpty()) {
+            val isToday = Instant.ofEpochMilli(latestEventTimestamp)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate() == LocalDate.now()
+
+            if (isToday) {
+                baseTimestamp
+            } else {
+                val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
+                "${mayaDate.day} ${mayaDate.winalName}"
+            }
+        } else {
+            baseTimestamp
+        }
+
         return RoomListRoomSummary(
             id = roomSummary.roomId.value,
             roomId = roomSummary.roomId,
@@ -50,31 +69,7 @@ class RoomListRoomSummaryFactory(
             numberOfUnreadMentions = roomInfo.numUnreadMentions,
             numberOfUnreadNotifications = roomInfo.numUnreadNotifications,
             isMarkedUnread = roomInfo.isMarkedUnread,
-            timestamp = let {
-                val latestEventTimestamp = roomSummary.latestEventTimestamp
-                val baseTimestamp = dateFormatter.format(
-                    timestamp = latestEventTimestamp,
-                    mode = DateFormatterMode.TimeOrDate,
-                    useRelative = true,
-                )
-                if (latestEventTimestamp != null && baseTimestamp.isNotEmpty()) {
-                    val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
-                    val isToday = Instant.ofEpochMilli(latestEventTimestamp)
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate() == LocalDate.now()
-                    buildAnnotatedString {
-                            if (isToday) {
-                                append(baseTimestamp)
-                            } else {
-                                val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
-                                append("${mayaDate.day} ${mayaDate.winalName}")
-                            }
-                        }
-                    }
-                } else {
-                    baseTimestamp
-                }
-            },
+            timestamp = formattedTimestamp,
             latestEvent = computeLatestEvent(roomSummary.latestEvent, roomInfo.isDm),
             avatarData = avatarData,
             userDefinedNotificationMode = roomInfo.userDefinedNotificationMode,
@@ -90,15 +85,9 @@ class RoomListRoomSummaryFactory(
             isDm = roomInfo.isDm,
             canonicalAlias = roomInfo.canonicalAlias,
             displayType = when (roomInfo.currentUserMembership) {
-                CurrentUserMembership.INVITED -> {
-                    RoomSummaryDisplayType.INVITE
-                }
-                CurrentUserMembership.KNOCKED -> {
-                    RoomSummaryDisplayType.KNOCKED
-                }
-                else -> {
-                    RoomSummaryDisplayType.ROOM
-                }
+                CurrentUserMembership.INVITED -> RoomSummaryDisplayType.INVITE
+                CurrentUserMembership.KNOCKED -> RoomSummaryDisplayType.KNOCKED
+                else -> RoomSummaryDisplayType.ROOM
             },
             heroes = roomInfo.heroes.map { user ->
                 user.getAvatarData(size = AvatarSize.RoomListItem)
@@ -111,24 +100,18 @@ class RoomListRoomSummaryFactory(
 
     private fun computeLatestEvent(latestEvent: LatestEventValue, dm: Boolean): LatestEvent {
         return when (latestEvent) {
-            is LatestEventValue.None -> {
-                LatestEvent.None
-            }
+            is LatestEventValue.None -> LatestEvent.None
             is LatestEventValue.Local -> {
                 if (latestEvent.isSending) {
                     val content = roomLatestEventFormatter.format(latestEvent, dm).orEmpty()
-                    LatestEvent.Sending(
-                        content = content,
-                    )
+                    LatestEvent.Sending(content = content)
                 } else {
                     LatestEvent.Error
                 }
             }
             is LatestEventValue.Remote -> {
                 val content = roomLatestEventFormatter.format(latestEvent, dm).orEmpty()
-                LatestEvent.Synced(
-                    content = content,
-                )
+                LatestEvent.Synced(content = content)
             }
             is LatestEventValue.RoomInvite -> LatestEvent.None
         }
