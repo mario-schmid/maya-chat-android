@@ -9,6 +9,7 @@
 package io.element.android.features.messages.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import io.element.android.compound.theme.Theme
 import io.element.android.features.messages.api.timeline.voicemessages.composer.VoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessagePreviewState
@@ -121,6 +122,11 @@ fun aMessagesState(
     roomCallState: RoomCallState = aStandByCallState(),
     pinnedMessagesBannerState: PinnedMessagesBannerState = aLoadedPinnedMessagesBannerState(),
     dmUserVerificationState: IdentityState? = null,
+    chatBackgroundImageState: ChatBackgroundImageState = ChatBackgroundImageState(
+        isEnabled = false,
+        uri = null,
+        theme = Theme.System,
+    ),
     roomMemberModerationState: RoomMemberModerationState = aRoomMemberModerationState(),
     topBarSharedHistoryIcon: SharedHistoryIcon = SharedHistoryIcon.NONE,
     successorRoom: SuccessorRoom? = null,
@@ -158,6 +164,7 @@ fun aMessagesState(
     roomMemberModerationState = roomMemberModerationState,
     topBarSharedHistoryIcon = topBarSharedHistoryIcon,
     successorRoom = successorRoom,
+    chatBackgroundImageState = chatBackgroundImageState,
     threads = threads,
     showLiveLocationShareBanner = isCurrentlySharingLiveLocationInRoom,
     dmUserStatus = dmUserStatus,

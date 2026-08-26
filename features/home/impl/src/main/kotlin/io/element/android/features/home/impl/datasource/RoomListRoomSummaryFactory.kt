@@ -42,11 +42,29 @@ class RoomListRoomSummaryFactory(
             numberOfUnreadMentions = roomInfo.numUnreadMentions,
             numberOfUnreadNotifications = roomInfo.numUnreadNotifications,
             isMarkedUnread = roomInfo.isMarkedUnread,
-            timestamp = dateFormatter.format(
-                timestamp = roomSummary.latestEventTimestamp,
-                mode = DateFormatterMode.TimeOrDate,
-                useRelative = true,
-            ),
+            timestamp = let {
+                val latestEventTimestamp = roomSummary.latestEventTimestamp
+                val baseTimestamp = dateFormatter.format(
+                    timestamp = latestEventTimestamp,
+                    mode = DateFormatterMode.TimeOrDate,
+                    useRelative = true,
+                )
+                if (latestEventTimestamp != null && baseTimestamp.isNotEmpty()) {
+                    val isToday = Instant.ofEpochMilli(latestEventTimestamp)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate() == LocalDate.now()
+                    buildAnnotatedString {
+                            if (isToday) {
+                                append(baseTimestamp)
+                            } else {
+                                val mayaDate = MayaCalendarHelper.getMayaDate(latestEventTimestamp)
+                                append("${mayaDate.day} ${mayaDate.winalName}")
+                            }
+                    }
+                } else {
+                    baseTimestamp
+                }
+            },
             latestEvent = computeLatestEvent(roomSummary.latestEvent, roomInfo.isDm),
             avatarData = avatarData,
             userDefinedNotificationMode = roomInfo.userDefinedNotificationMode,

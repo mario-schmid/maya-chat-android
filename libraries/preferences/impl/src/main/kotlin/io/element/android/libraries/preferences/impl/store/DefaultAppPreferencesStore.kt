@@ -32,6 +32,10 @@ import kotlinx.coroutines.flow.map
 private val developerModeKey = booleanPreferencesKey("developerMode")
 private val customElementCallBaseUrlKey = stringPreferencesKey("elementCallBaseUrl")
 private val themeKey = stringPreferencesKey("theme")
+private val themeColorKey = stringPreferencesKey("themeColor")
+private val chatBackgroundImageKey = stringPreferencesKey("chatBackgroundImage")
+private val isChatBackgroundImageEnabledKey = booleanPreferencesKey("isChatBackgroundImageEnabled")
+private const val DEFAULT_THEME_COLOR = "#4d00b2"
 private val hideInviteAvatarsKey = booleanPreferencesKey("hideInviteAvatars")
 private val timelineMediaPreviewValueKey = stringPreferencesKey("timelineMediaPreviewValue")
 private val liveLocationMinimumDistanceUpdateKey = intPreferencesKey("liveLocationMinimumDistanceUpdate")
@@ -94,6 +98,46 @@ class DefaultAppPreferencesStore(
     override fun getThemeFlow(): Flow<String?> {
         return store.data.map { prefs ->
             prefs[themeKey]
+        }
+    }
+
+    override suspend fun setThemeColor(colorHex: String) {
+        store.edit { prefs ->
+            prefs[themeColorKey] = colorHex
+        }
+    }
+
+    override fun getThemeColorFlow(): Flow<String> {
+        return store.data.map { prefs ->
+            prefs[themeColorKey] ?: DEFAULT_THEME_COLOR
+        }
+    }
+
+    override suspend fun setChatBackgroundImage(uri: String?) {
+        store.edit { prefs ->
+            if (uri != null) {
+                prefs[chatBackgroundImageKey] = uri
+            } else {
+                prefs.remove(chatBackgroundImageKey)
+            }
+        }
+    }
+
+    override fun getChatBackgroundImageFlow(): Flow<String?> {
+        return store.data.map { prefs ->
+            prefs[chatBackgroundImageKey]
+        }
+    }
+
+    override suspend fun setChatBackgroundImageEnabled(enabled: Boolean) {
+        store.edit { prefs ->
+            prefs[isChatBackgroundImageEnabledKey] = enabled
+        }
+    }
+
+    override fun isChatBackgroundImageEnabledFlow(): Flow<Boolean> {
+        return store.data.map { prefs ->
+            prefs[isChatBackgroundImageEnabledKey] ?: false
         }
     }
 

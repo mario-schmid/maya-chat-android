@@ -74,8 +74,37 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
     // Store the formatted date so we recompute it lazily and can keep it around even if we need to dispose the badge because the timeline items changed
     var formattedDate: String? by remember { mutableStateOf(null) }
     // Update the formatted date when we have a new non-null timestamp
-    LaunchedEffect(lastVisibleItemWithTimestamp) {
-        lastVisibleItemWithTimestamp?.formattedDate()?.let { formattedDate = it }
+    val formattedDate: AnnotatedString? = remember(lastVisibleItemWithTimestamp) {
+        val item = lastVisibleItemWithTimestamp ?: return@remember null
+
+        val timestamp = when (item) {
+            is TimelineItem.Event -> item.sentTimeMillis
+            is TimelineItem.Virtual -> (item.model as? TimelineItemDaySeparatorModel)?.timestamp
+            is TimelineItem.GroupedEvents -> item.events.firstOrNull()?.sentTimeMillis
+        }
+
+        val baseTimestamp = item.formattedDate()
+        if (timestamp == null || timestamp <= 0L || baseTimestamp.isNullOrEmpty()) {
+            return@remember null
+        }
+
+        val itemDate = Instant.ofEpochMilli(timestamp)
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+        val today = LocalDate.now()
+        val yesterday = today.minusDays(1)
+
+        val dateText = when (itemDate) {
+            today -> return@remember null
+            yesterday -> baseTimestamp
+            else -> {
+                val mayaDate = MayaCalendarHelper.getMayaDate(timestamp)
+                "${mayaDate.day} ${mayaDate.winalName}"
+            }
+        }
+        buildAnnotatedString {
+                append(dateText)
+        }
     }
 
     val isAtBottom by remember {

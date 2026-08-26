@@ -23,7 +23,10 @@ import androidx.compose.runtime.setValue
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import io.element.android.compound.theme.Theme
+import io.element.android.compound.theme.mapToTheme
 import io.element.android.features.location.api.live.ActiveLiveLocationShareManager
+import io.element.android.features.messages.impl.ChatBackgroundImageState
 import io.element.android.features.messages.impl.MessagesNavigator
 import io.element.android.features.messages.impl.UserEventPermissions
 import io.element.android.features.messages.impl.crypto.sendfailure.resolve.ResolveVerifiedUserSendFailureEvent
@@ -59,6 +62,7 @@ import io.element.android.libraries.matrix.api.timeline.ReceiptType
 import io.element.android.libraries.matrix.api.timeline.Timeline
 import io.element.android.libraries.matrix.api.timeline.item.event.LocalEventSendState
 import io.element.android.libraries.matrix.api.timeline.item.event.TimelineItemEventOrigin
+import io.element.android.libraries.preferences.api.store.AppPreferencesStore
 import io.element.android.libraries.preferences.api.store.SessionPreferencesStore
 import io.element.android.services.analytics.api.AnalyticsLongRunningTransaction.DisplayFirstTimelineItems
 import io.element.android.services.analytics.api.AnalyticsLongRunningTransaction.NotificationToMessage
@@ -86,6 +90,7 @@ const val FOCUS_ON_PINNED_EVENT_DEBOUNCE_DURATION_IN_MILLIS = 200L
 class TimelinePresenter(
     timelineItemsFactoryCreator: TimelineItemsFactory.Creator,
     private val room: JoinedRoom,
+    private val appPreferencesStore: AppPreferencesStore,
     private val dispatchers: CoroutineDispatchers,
     @SessionCoroutineScope
     private val sessionCoroutineScope: CoroutineScope,
@@ -165,6 +170,19 @@ class TimelinePresenter(
         }
 
         val timelineProtectionState = timelineProtectionPresenter.present()
+
+        val isBlackThemeAllowed by remember {
+            featureFlagService.isFeatureEnabledFlow(FeatureFlags.AllowBlackTheme)
+        }.collectAsState(initial = false)
+        val theme by remember(isBlackThemeAllowed) {
+            appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
+        }.collectAsState(initial = Theme.System)
+        val isChatBackgroundImageEnabled by remember {
+            appPreferencesStore.isChatBackgroundImageEnabledFlow()
+        }.collectAsState(initial = false)
+        val chatBackgroundImageUri by remember {
+            appPreferencesStore.getChatBackgroundImageFlow()
+        }.collectAsState(initial = null)
 
         fun handleEvent(event: TimelineEvent) {
             when (event) {
@@ -461,6 +479,11 @@ class TimelinePresenter(
             displayThreadSummaries = displayThreadSummaries,
             displayJumpToUnread = displayJumpToUnread,
             jumpToUnread = jumpToUnread.value,
+            chatBackgroundImageState = ChatBackgroundImageState(
+                isEnabled = isChatBackgroundImageEnabled,
+                uri = chatBackgroundImageUri,
+                theme = theme,
+            ),
             eventSink = ::handleEvent,
         )
     }

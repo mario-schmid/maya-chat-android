@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Element Creations Ltd.
+  ~
+  ~ SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Element-Commercial.
+  ~ Please see LICENSE files in the repository root for full details.
+  -->
+
+<resources>
+    <string name="theme_color">Color</string>
+    <string name="screen_advanced_settings_theme_color">Theme color</string>
+    <string name="screen_advanced_settings_theme_color_description">Customize the main color for the Color theme</string>
+    <string name="screen_advanced_settings_choose_theme_color">Choose theme color</string>
+    <string name="screen_advanced_settings_hex_color">Hex color code</string>
+    <string name="screen_advanced_settings_preset_colors">Preset colors</string>
+    <string name="screen_advanced_settings_preview_font_black">Font: Black (Saturation &lt; 50%)</string>
+    <string name="screen_advanced_settings_preview_font_white">Font: White (Saturation ≥ 50%)</string>
+    <string name="screen_advanced_settings_background_image">Background image</string>
+    <string name="screen_advanced_settings_choose_background_image">Choose background image</string>
+    <string name="common_custom">Custom</string>
+    <string name="common_default">Default</string>
+</resources>

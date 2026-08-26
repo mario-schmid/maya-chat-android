@@ -45,6 +45,30 @@ interface AppPreferencesStore {
     fun getThemeFlow(): Flow<String?>
 
     /**
+     * @param colorHex the hex string of the custom main color for the Color theme (e.g. "#4d00b2").
+     */
+    suspend fun setThemeColor(colorHex: String)
+
+    /** The custom main color hex string for the Color theme; defaults to "#4d00b2". */
+    fun getThemeColorFlow(): Flow<String>
+
+    /**
+     * @param uri the URI of the background image to use in the chat, or `null` for the default.
+     */
+    suspend fun setChatBackgroundImage(uri: String?)
+
+    /** The URI of the background image to use in the chat, or `null` for the default. */
+    fun getChatBackgroundImageFlow(): Flow<String?>
+
+    /**
+     * @param enabled true to enable the background image in the chat.
+     */
+    suspend fun setChatBackgroundImageEnabled(enabled: Boolean)
+
+    /** Whether the background image is enabled in the chat; defaults to `false`. */
+    fun isChatBackgroundImageEnabledFlow(): Flow<Boolean>
+
+    /**
      * @param value the distance in metres the user must move before a new live location is published.
      */
     suspend fun setLiveLocationMinimumDistanceInMetersUpdate(value: Int)

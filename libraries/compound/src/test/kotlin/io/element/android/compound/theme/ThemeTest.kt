@@ -95,6 +95,65 @@ class ThemeTest : RobolectricTest() {
     }
 
     @Test
+    fun `isDark for Color returns false`() = runTest {
+        moleculeFlow(RecompositionMode.Immediate) {
+            Theme.Color.isDark()
+        }.test {
+            assertThat(awaitItem()).isFalse()
+        }
+    }
+
+    @Test
+    fun `mapToTheme maps Color correctly`() = runTest {
+        flowOf(Theme.Color.name)
+            .mapToTheme(allowBlackTheme = false)
+            .test {
+                assertThat(awaitItem()).isEqualTo(Theme.Color)
+                awaitComplete()
+            }
+    }
+
+    @Test
+    fun `createCompoundColorTheme with default color has white fonts when S is higher than 50`() {
+        val defaultColor = androidx.compose.ui.graphics.Color(0xFF4D00B2)
+        val saturationPercent = defaultColor.hsvSaturation() * 100f
+        assertThat(saturationPercent).isAtLeast(50f)
+
+        val theme = createCompoundColorTheme(defaultColor)
+        assertThat(theme.bgCanvasDefault).isEqualTo(defaultColor)
+        assertThat(theme.textPrimary).isEqualTo(androidx.compose.ui.graphics.Color.White)
+        assertThat(theme.iconPrimary).isEqualTo(androidx.compose.ui.graphics.Color.White)
+        assertThat(theme.isLight).isFalse()
+        assertThat(theme.gradientSubtleStop1).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.gradientSubtleStop6).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.bgActionPrimaryRest).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.bgAccentRest).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.borderFocused).isEqualTo(androidx.compose.ui.graphics.Color.White)
+        assertThat(theme.iconAccentPrimary).isEqualTo(androidx.compose.ui.graphics.Color.White)
+        assertThat(theme.bgBadgeAccent).isEqualTo(theme.bgSubtleSecondary)
+    }
+
+    @Test
+    fun `createCompoundColorTheme with low saturation color has black fonts when S is lower than 50`() {
+        val lowSatColor = androidx.compose.ui.graphics.Color(0xFFA89F91)
+        val saturationPercent = lowSatColor.hsvSaturation() * 100f
+        assertThat(saturationPercent).isLessThan(50f)
+
+        val theme = createCompoundColorTheme(lowSatColor)
+        assertThat(theme.bgCanvasDefault).isEqualTo(lowSatColor)
+        assertThat(theme.textPrimary).isEqualTo(androidx.compose.ui.graphics.Color.Black)
+        assertThat(theme.iconPrimary).isEqualTo(androidx.compose.ui.graphics.Color.Black)
+        assertThat(theme.isLight).isTrue()
+        assertThat(theme.gradientSubtleStop1).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.gradientSubtleStop6).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.bgActionPrimaryRest).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.bgAccentRest).isEqualTo(theme.bgSubtleSecondary)
+        assertThat(theme.borderFocused).isEqualTo(androidx.compose.ui.graphics.Color.Black)
+        assertThat(theme.iconAccentPrimary).isEqualTo(androidx.compose.ui.graphics.Color.Black)
+        assertThat(theme.bgBadgeAccent).isEqualTo(theme.bgSubtleSecondary)
+    }
+
+    @Test
     fun `mapToTheme falls back to dark when black theme is disabled`() = runTest {
         flowOf(Theme.Black.name)
             .mapToTheme(allowBlackTheme = false)

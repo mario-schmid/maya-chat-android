@@ -15,6 +15,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+>>>>>>> 6e2fb7ca37 (color theme)
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -41,13 +47,51 @@ internal fun TimelineItemDaySeparatorView(
     ) {
         Text(
             modifier = Modifier
-                .semantics {
-                    heading()
-                },
-            text = model.formattedDate,
-            style = ElementTheme.typography.fontBodyMdMedium,
-            color = ElementTheme.colors.textPrimary,
-        )
+                .semantics { heading() }
+        ) {
+            // Maya Badge equivalent
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(end = 12.dp)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy((-13).dp),
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                ) {
+
+                    Image(
+                        painter = painterResource(id = mayaDate.toneResId),
+                          contentDescription = mayaDate.toneName,
+                          modifier = Modifier.size(56.dp),
+                          colorFilter = ColorFilter.tint(ElementTheme.colors.textPrimary)
+                    )
+                    Image(
+                        painter = painterResource(id = mayaDate.nahualResId),
+                        contentDescription = mayaDate.nahualName,
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+                Text(
+                    text = mayaDate.fullMayaText,
+                    style = ElementTheme.typography.fontBodyMdMedium.copy(
+                        color = ElementTheme.colors.textPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp
+                    ),
+                    modifier = Modifier.offset(y = (16).dp)
+                )
+            }
+
+            // Original Gregorian Date
+            Text(
+                text = model.formattedDate,
+                style = ElementTheme.typography.fontBodyMdMedium,
+                color = ElementTheme.colors.textPrimary,
+                modifier = Modifier.offset(y = (16).dp)
+            )
+        }
     }
 }
 

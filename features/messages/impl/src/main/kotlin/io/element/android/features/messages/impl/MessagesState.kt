@@ -59,6 +59,7 @@ data class MessagesState(
     /** Type of "shared history" icon to show in the top bar. */
     val topBarSharedHistoryIcon: SharedHistoryIcon,
     val successorRoom: SuccessorRoom?,
+    val chatBackgroundImageState: ChatBackgroundImageState,
     val threads: Threads,
     val showLiveLocationShareBanner: Boolean,
     val eventSink: (MessagesEvent) -> Unit

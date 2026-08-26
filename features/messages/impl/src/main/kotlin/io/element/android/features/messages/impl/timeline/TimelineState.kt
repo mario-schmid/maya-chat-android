@@ -9,6 +9,7 @@
 package io.element.android.features.messages.impl.timeline
 
 import androidx.compose.runtime.Immutable
+import io.element.android.features.messages.impl.ChatBackgroundImageState
 import io.element.android.features.messages.impl.crypto.sendfailure.resolve.ResolveVerifiedUserSendFailureState
 import io.element.android.features.messages.impl.timeline.components.MessageShieldData
 import io.element.android.features.messages.impl.timeline.model.NewEventState
@@ -37,6 +38,7 @@ data class TimelineState(
     val displayThreadSummaries: Boolean,
     val displayJumpToUnread: Boolean,
     val jumpToUnread: JumpToUnreadState,
+    val chatBackgroundImageState: ChatBackgroundImageState,
     val eventSink: (TimelineEvent) -> Unit,
 ) {
     private val lastTimelineEvent = timelineItems.firstOrNull { it is TimelineItem.Event } as? TimelineItem.Event

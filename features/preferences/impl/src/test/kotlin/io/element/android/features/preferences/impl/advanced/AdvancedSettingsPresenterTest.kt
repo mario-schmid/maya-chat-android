@@ -43,8 +43,9 @@ class AdvancedSettingsPresenterTest {
                 assertThat(isSharePresenceEnabled).isTrue()
                 assertThat(mediaOptimizationState).isNull()
                 assertThat(theme).isEqualTo(ThemeOption.System)
+                assertThat(themeColor).isEqualTo("#4d00b2")
                 assertThat(availableThemeOptions).isEqualTo(
-                    listOf(ThemeOption.System, ThemeOption.Light, ThemeOption.Dark).toImmutableList()
+                    listOf(ThemeOption.System, ThemeOption.Light, ThemeOption.Dark, ThemeOption.Color).toImmutableList()
                 )
                 assertThat(mediaPreviewConfigState.hideInviteAvatars).isFalse()
                 assertThat(mediaPreviewConfigState.timelineMediaPreviewValue).isEqualTo(MediaPreviewValue.On)
@@ -194,7 +195,7 @@ class AdvancedSettingsPresenterTest {
 
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.System)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Dark))
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.Dark))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Dark)
@@ -206,7 +207,7 @@ class AdvancedSettingsPresenterTest {
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Light)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.System))
+                eventSink(AdvancedSettingsEvents.SetTheme(ThemeOption.System))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.System)
