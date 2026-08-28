@@ -51,13 +51,13 @@ class AdvancedSettingsPresenter(
         }.collectAsState(initial = false)
         val theme = remember(isBlackThemeAllowed) {
             appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
-        }.collectAsState(initial = Theme.System)
+        }.collectAsState(initial = Theme.Color)
         val themeColor by remember {
             appPreferencesStore.getThemeColorFlow()
         }.collectAsState(initial = "#4d00b2")
         val isChatBackgroundImageEnabled by remember {
             appPreferencesStore.isChatBackgroundImageEnabledFlow()
-        }.collectAsState(initial = false)
+        }.collectAsState(initial = true)
         val chatBackgroundImageUri by remember {
             appPreferencesStore.getChatBackgroundImageFlow()
         }.collectAsState(initial = null)
@@ -132,6 +132,9 @@ class AdvancedSettingsPresenter(
                 }
                 is AdvancedSettingsEvent.SetThemeColor -> sessionCoroutineScope.launch {
                     appPreferencesStore.setThemeColor(event.colorHex)
+                }
+                is AdvancedSettingsEvent.ResetThemeColor -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setThemeColor("#4d00b2")
                 }
                 is AdvancedSettingsEvent.SetChatBackgroundImageEnabled -> sessionCoroutineScope.launch {
                     appPreferencesStore.setChatBackgroundImageEnabled(event.enabled)

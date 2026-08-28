@@ -19,6 +19,7 @@ sealed interface AdvancedSettingsEvent {
     data class SetVideoUploadQuality(val videoPreset: VideoCompressionPreset) : AdvancedSettingsEvent
     data class SetTheme(val theme: ThemeOption) : AdvancedSettingsEvent
     data class SetThemeColor(val colorHex: String) : AdvancedSettingsEvent
+    data object ResetThemeColor : AdvancedSettingsEvent
     data class SetChatBackgroundImageEnabled(val enabled: Boolean) : AdvancedSettingsEvent
     data class SetChatBackgroundImage(val uri: String?) : AdvancedSettingsEvent
     data class SetTimelineMediaPreviewValue(val value: MediaPreviewValue) : AdvancedSettingsEvent

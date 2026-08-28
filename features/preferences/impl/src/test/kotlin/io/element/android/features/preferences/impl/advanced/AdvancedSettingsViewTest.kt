@@ -14,7 +14,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import com.google.common.truth.Truth.assertThat
 import im.vector.app.features.analytics.plan.Interaction
@@ -88,6 +90,20 @@ class AdvancedSettingsViewTest : RobolectricTest() {
         val text = activity!!.getString(R.string.screen_advanced_settings_theme_color)
         onNodeWithText(text).assertExists()
         onNodeWithText("#22004D").assertExists()
+    }
+
+    @Test
+    fun `long clicking on theme color emits the expected event`() = runAndroidComposeUiTest {
+        val eventsRecorder = EventsRecorder<AdvancedSettingsEvent>()
+        setAdvancedSettingsView(
+            state = aAdvancedSettingsState(
+                theme = ThemeOption.Color,
+                eventSink = eventsRecorder,
+            ),
+        )
+        val text = activity!!.getString(R.string.screen_advanced_settings_theme_color)
+        onNodeWithText(text).performTouchInput { longClick() }
+        eventsRecorder.assertSingle(AdvancedSettingsEvent.ResetThemeColor)
     }
 
     @Test
