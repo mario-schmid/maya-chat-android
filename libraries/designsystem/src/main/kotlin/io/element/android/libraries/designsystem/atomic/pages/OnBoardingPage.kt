@@ -18,10 +18,16 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
+import io.element.android.compound.theme.Theme
+import io.element.android.compound.theme.adjustHsvValue
+import io.element.android.compound.theme.hsvValue
 import io.element.android.libraries.designsystem.R
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
@@ -45,12 +51,39 @@ fun OnBoardingPage(
     footer: @Composable () -> Unit = {},
     content: @Composable () -> Unit = {},
 ) {
+    val theme = ElementTheme.theme
+    val mainColor = ElementTheme.mainThemeColor
+
+    val backgroundModifier = if (theme == Theme.Color) {
+        val v = mainColor.hsvValue()
+        val endColor = if (v > 0.5f) {
+            mainColor.adjustHsvValue(-0.5f)
+        } else {
+            mainColor.adjustHsvValue(0.5f)
+        }
+        Modifier.drawBehind {
+            val center = Offset(x = size.width * 0.14f, y = size.height * 0.36f)
+            val endPoint = Offset(x = size.width * 1.30f, y = size.height * 0.23f)
+            val radius = (endPoint - center).getDistance()
+            drawRect(
+                brush = Brush.radialGradient(
+                    colors = listOf(mainColor, endColor),
+                    center = center,
+                    radius = radius
+                ),
+                size = size
+            )
+        }
+    } else {
+        Modifier
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
+            .then(backgroundModifier)
     ) {
         // BG
-        if (renderBackground) {
+        if (renderBackground && theme != Theme.Color) {
             Image(
                 modifier = Modifier
                     .fillMaxSize(),

@@ -9,6 +9,7 @@ package io.element.android.compound.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.toArgb
 import io.element.android.compound.tokens.generated.SemanticColors
 import io.element.android.compound.tokens.generated.compoundColorsDark
 import io.element.android.compound.tokens.generated.compoundColorsLight
@@ -17,10 +18,51 @@ import io.element.android.compound.tokens.generated.compoundColorsLight
  * Calculates the HSV saturation value of a [Color] on a scale of 0.0f to 1.0f (0% to 100%).
  */
 fun Color.hsvSaturation(): Float {
-    val max = maxOf(red, green, blue)
-    val min = minOf(red, green, blue)
-    val delta = max - min
-    return if (max == 0f) 0f else delta / max
+    val hsv = FloatArray(3)
+    android.graphics.Color.colorToHSV(toArgb(), hsv)
+    return hsv[1]
+}
+
+/**
+ * Calculates the HSV value (brightness) of a [Color] on a scale of 0.0f to 1.0f (0% to 100%).
+ */
+fun Color.hsvValue(): Float {
+    val hsv = FloatArray(3)
+    android.graphics.Color.colorToHSV(toArgb(), hsv)
+    return hsv[2]
+}
+
+/**
+ * Calculates the HSV hue value of a [Color] on a scale of 0.0f to 360.0f.
+ */
+fun Color.hsvHue(): Float {
+    val hsv = FloatArray(3)
+    android.graphics.Color.colorToHSV(toArgb(), hsv)
+    return hsv[0]
+}
+
+/**
+ * Converts a [Color] to a hex string (e.g., "#4D00B2").
+ */
+fun Color.toHex(): String {
+    return String.format("#%06X", 0xFFFFFF and toArgb())
+}
+
+/**
+ * Creates a [Color] from HSV values.
+ */
+fun Color.Companion.fromHsv(h: Float, s: Float, v: Float): Color {
+    return Color(android.graphics.Color.HSVToColor(floatArrayOf(h, s, v)))
+}
+
+/**
+ * Returns a [Color] with the HSV value adjusted by [deltaV].
+ */
+fun Color.adjustHsvValue(deltaV: Float): Color {
+    val hsv = FloatArray(3)
+    android.graphics.Color.colorToHSV(toArgb(), hsv)
+    hsv[2] = (hsv[2] + deltaV).coerceIn(0f, 1f)
+    return Color(android.graphics.Color.HSVToColor(hsv))
 }
 
 /**

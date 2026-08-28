@@ -76,10 +76,28 @@ object ElementTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalCompoundColors.current.isLight
+
+    /**
+     * Returns the current [Theme] provided by [ElementTheme].
+     */
+    val theme: Theme
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalTheme.current
+
+    /**
+     * Returns the current main theme color provided by [ElementTheme].
+     */
+    val mainThemeColor: Color
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalMainThemeColor.current
 }
 
 // Global variables (application level)
 internal val LocalCompoundColors = staticCompositionLocalOf { compoundColorsLight }
+internal val LocalTheme = staticCompositionLocalOf { Theme.System }
+internal val LocalMainThemeColor = staticCompositionLocalOf { Color(0xFF4D00B2) }
 
 /**
  * Sets up the theme for the application, or a part of it.
@@ -174,6 +192,8 @@ fun ElementTheme(
     }
     CompositionLocalProvider(
         LocalCompoundColors provides currentCompoundColor,
+        LocalTheme provides theme,
+        LocalMainThemeColor provides mainThemeColor,
         LocalContentColor provides colorScheme.onSurface,
         // Configure the keyboard focus style: Draw a blue inset ring around the focused component.
         // Ref: https://www.figma.com/design/hlbsmSekQorGRN1t2R9JEy/Accessibility-checks?node-id=271-42066

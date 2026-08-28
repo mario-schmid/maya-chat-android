@@ -115,13 +115,18 @@ fun AdvancedSettingsView(
 
         if (state.theme == ThemeOption.Color) {
             ListItem(
+                modifier = Modifier.combinedClickable(
+                    onClick = { displayColorPickerDialog = true },
+                    onLongClick = {
+                        state.eventSink(AdvancedSettingsEvent.ResetThemeColor)
+                    }
+                ),
                 content = {
                     Text(text = stringResource(id = R.string.screen_advanced_settings_theme_color))
                 },
                 trailingContent = ListItemContent.Text(
                     text = state.themeColor.uppercase()
                 ),
-                onClick = { displayColorPickerDialog = true }
             )
             ListItem(
                 content = {

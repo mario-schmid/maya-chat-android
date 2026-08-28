@@ -93,27 +93,27 @@ internal fun BoxScope.FloatingDateBadgeOverlay(
             is TimelineItem.GroupedEvents -> item.events.firstOrNull()?.sentTimeMillis
         }
 
-        val baseTimestamp = item.formattedDate()
-        if (timestamp == null || timestamp <= 0L || baseTimestamp.isNullOrEmpty()) {
+        if (timestamp == null || timestamp <= 0L) {
             return@remember null
         }
 
         val itemDate = Instant.ofEpochMilli(timestamp)
-        .atZone(ZoneId.systemDefault())
-        .toLocalDate()
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
         val today = LocalDate.now()
-        val yesterday = today.minusDays(1)
 
-        val dateText = when (itemDate) {
-            today -> return@remember null
-            yesterday -> baseTimestamp
+        when (itemDate) {
+            today -> null
+            today.minusDays(1) -> {
+                val baseTimestamp = item.formattedDate()
+                if (baseTimestamp.isNullOrEmpty()) null else buildAnnotatedString { append(baseTimestamp) }
+            }
             else -> {
                 val mayaDate = MayaCalendarHelper.getMayaDate(timestamp)
-                "${mayaDate.day} ${mayaDate.winalName}"
+                buildAnnotatedString {
+                    append("${mayaDate.day} ${mayaDate.winalName}")
+                }
             }
-        }
-        buildAnnotatedString {
-                append(dateText)
         }
     }
 

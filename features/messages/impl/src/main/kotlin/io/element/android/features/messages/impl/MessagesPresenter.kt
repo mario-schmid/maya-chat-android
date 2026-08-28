@@ -188,10 +188,10 @@ class MessagesPresenter(
         }.collectAsState(initial = false)
         val theme by remember(isBlackThemeAllowed) {
             appPreferencesStore.getThemeFlow().mapToTheme(isBlackThemeAllowed)
-        }.collectAsState(initial = Theme.System)
+        }.collectAsState(initial = Theme.Color)
         val isChatBackgroundImageEnabled by remember {
             appPreferencesStore.isChatBackgroundImageEnabledFlow()
-        }.collectAsState(initial = false)
+        }.collectAsState(initial = true)
         val chatBackgroundImageUri by remember {
             appPreferencesStore.getChatBackgroundImageFlow()
         }.collectAsState(initial = null)

@@ -7,37 +7,47 @@
 
 package io.element.android.features.preferences.impl.advanced
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
+import io.element.android.compound.theme.fromHsv
+import io.element.android.compound.theme.hsvHue
 import io.element.android.compound.theme.hsvSaturation
+import io.element.android.compound.theme.hsvValue
 import io.element.android.compound.theme.parseColorOrNull
-import io.element.android.compound.tokens.generated.CompoundIcons
+import io.element.android.compound.theme.toHex
 import io.element.android.features.preferences.impl.R
 import io.element.android.libraries.designsystem.components.dialogs.ListDialog
 import io.element.android.libraries.designsystem.preview.ElementPreview
@@ -45,24 +55,13 @@ import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.designsystem.theme.components.TextField
 import io.element.android.libraries.ui.strings.CommonStrings
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 
-private val PRESET_COLORS = listOf(
-    "#22004D", // Dark Purple (S = 100%, Font: White)
-    "#004D1A", // Dark Green (S = 100%, Font: White)
-    "#4D0000", // Dark Red (S = 100%, Font: White)
-    "#004D4D", // Dark Teal (S = 100%, Font: White)
-    "#000C4D", // Dark Blue (S = 100%, Font: White)
-    "#4D004D", // Dark Pink (S = 100%, Font: White)
-    "#BA84FF", // Light Purple (S = 48% < 50%, Font: Black)
-    "#85FFAE", // Light Green (S = 48% < 50%, Font: Black)
-    "#FF8484", // Light Red (S = 48% < 50%, Font: Black)
-    "#86FFFF", // Light Teal (S = 48% < 50%, Font: Black)
-    "#859CFF", // Light Blue (S = 48% < 50%, Font: Black)
-    "#FF86FF", // Light Pink (S = 48% < 50%, Font: Black)
-)
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ColorThemePickerDialog(
     initialColorHex: String,
@@ -70,11 +69,18 @@ fun ColorThemePickerDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedHex by remember { mutableStateOf(initialColorHex) }
+    val initialColor = remember { parseColorOrNull(initialColorHex) ?: Color(0xFF4D00B2) }
+    
+    var hue by remember { mutableFloatStateOf(initialColor.hsvHue()) }
+    var saturation by remember { mutableFloatStateOf(initialColor.hsvSaturation()) }
+    var value by remember { mutableFloatStateOf(initialColor.hsvValue()) }
+    
     var hexInput by remember { mutableStateOf(initialColorHex) }
 
-    val currentColor = remember(selectedHex) {
-        parseColorOrNull(selectedHex) ?: parseColorOrNull(initialColorHex) ?: Color(0xFF4D00B2)
+    val currentColor by remember {
+        derivedStateOf {
+            Color.fromHsv(hue, saturation, value)
+        }
     }
 
     val saturationPercent = (currentColor.hsvSaturation() * 100f).roundToInt()
@@ -83,10 +89,9 @@ fun ColorThemePickerDialog(
 
     ListDialog(
         modifier = modifier,
-        title = stringResource(R.string.screen_advanced_settings_choose_theme_color),
         submitText = stringResource(CommonStrings.action_save),
         cancelText = stringResource(CommonStrings.action_cancel),
-        onSubmit = { onSubmit(selectedHex) },
+        onSubmit = { onSubmit(currentColor.toHex()) },
         onDismissRequest = onDismiss,
     ) {
         item {
@@ -94,63 +99,45 @@ fun ColorThemePickerDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                // Preset color swatches
-                Text(
-                    text = stringResource(R.string.screen_advanced_settings_preset_colors),
-                    style = ElementTheme.typography.fontBodyMdMedium,
-                    color = ElementTheme.colors.textPrimary,
+                // Color wheel
+                ColorWheel(
+                    hue = hue,
+                    saturation = saturation,
+                    value = value,
+                    onColorChanged = { newHue, newSaturation ->
+                        hue = newHue
+                        saturation = newSaturation
+                        hexInput = currentColor.toHex()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .align(Alignment.CenterHorizontally),
                 )
 
-                FlowRow(
+                // Brightness slider
+                BrightnessSlider(
+                    hue = hue,
+                    saturation = saturation,
+                    value = value,
+                    onValueChange = { newValue ->
+                        value = newValue
+                        hexInput = currentColor.toHex()
+                    },
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    for (presetHex in PRESET_COLORS) {
-                        val presetColor = parseColorOrNull(presetHex) ?: continue
-                        val isSelected = selectedHex.equals(presetHex, ignoreCase = true)
-                        val presetSaturation = (presetColor.hsvSaturation() * 100f).roundToInt()
-                        val checkTint = if (presetSaturation < 50) Color.Black else Color.White
-
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(presetColor)
-                                .border(
-                                    width = if (isSelected) 3.dp else 1.dp,
-                                    color = if (isSelected) ElementTheme.colors.borderFocused else ElementTheme.colors.borderInteractiveSecondary,
-                                    shape = CircleShape,
-                                )
-                                .clickable {
-                                    selectedHex = presetHex
-                                    hexInput = presetHex
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = CompoundIcons.Check(),
-                                    contentDescription = null,
-                                    tint = checkTint,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-                        }
-                    }
-                }
+                )
 
                 // Custom Hex input
                 TextField(
                     value = hexInput,
                     onValueChange = { input ->
                         hexInput = input
-                        val parsed = parseColorOrNull(input)
-                        if (parsed != null) {
-                            selectedHex = if (input.startsWith("#")) input else "#$input"
+                        parseColorOrNull(input)?.let { parsed ->
+                            hue = parsed.hsvHue()
+                            saturation = parsed.hsvSaturation()
+                            value = parsed.hsvValue()
                         }
                     },
-                    label = stringResource(R.string.screen_advanced_settings_hex_color),
                     placeholder = "#4D00B2",
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -189,6 +176,149 @@ fun ColorThemePickerDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ColorWheel(
+    hue: Float,
+    saturation: Float,
+    value: Float,
+    onColorChanged: (hue: Float, saturation: Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val updatedOnColorChanged by rememberUpdatedState(onColorChanged)
+    val updatedValue by rememberUpdatedState(value)
+
+    Canvas(
+        modifier = modifier
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    val center = Offset(size.width / 2f, size.height / 2f)
+                    val radius = minOf(size.width, size.height) / 2f
+                    
+                    fun updateColor(offset: Offset) {
+                        val distance = (offset - center).getDistance()
+                        val angle = ((atan2(offset.y - center.y, offset.x - center.x) * 180 / PI)).toFloat()
+                        val newHue = (angle + 360f) % 360f
+                        val newSaturation = (distance / radius).coerceIn(0f, 1f)
+                        updatedOnColorChanged(newHue, newSaturation)
+                    }
+
+                    updateColor(down.position)
+                    down.consume()
+
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                        if (change == null || !change.pressed) break
+                        updateColor(change.position)
+                        change.consume()
+                    }
+                }
+            }
+    ) {
+        val radius = size.minDimension / 2
+        drawCircle(
+            brush = Brush.sweepGradient(
+                colors = listOf(
+                    Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red
+                ),
+                center = center
+            ),
+            radius = radius
+        )
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(Color.White, Color.Transparent),
+                center = center,
+                radius = radius
+            ),
+            radius = radius
+        )
+        // Selector
+        val angleRad = hue * PI / 180
+        val selectorX = center.x + cos(angleRad) * saturation * radius
+        val selectorY = center.y + sin(angleRad) * saturation * radius
+        drawCircle(
+            color = Color.White,
+            radius = 8.dp.toPx(),
+            center = Offset(selectorX.toFloat(), selectorY.toFloat()),
+            style = Stroke(width = 2.dp.toPx())
+        )
+        drawCircle(
+            color = Color.Black,
+            radius = 7.dp.toPx(),
+            center = Offset(selectorX.toFloat(), selectorY.toFloat()),
+            style = Stroke(width = 1.dp.toPx())
+        )
+    }
+}
+
+@Composable
+private fun BrightnessSlider(
+    hue: Float,
+    saturation: Float,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val updatedOnValueChange by rememberUpdatedState(onValueChange)
+    val updatedHue by rememberUpdatedState(hue)
+    val updatedSaturation by rememberUpdatedState(saturation)
+
+    Canvas(
+        modifier = modifier
+            .height(24.dp)
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown()
+                    updatedOnValueChange((down.position.x / size.width).coerceIn(0f, 1f))
+                    down.consume()
+
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                        if (change == null || !change.pressed) break
+                        updatedOnValueChange((change.position.x / size.width).coerceIn(0f, 1f))
+                        change.consume()
+                    }
+                }
+            }
+    ) {
+        val radius = 8.dp.toPx()
+        val trackHeight = 12.dp.toPx()
+        val trackRect = androidx.compose.ui.geometry.Rect(
+            Offset(0f, (size.height - trackHeight) / 2),
+            androidx.compose.ui.geometry.Size(size.width, trackHeight)
+        )
+        
+        val gradient = Brush.horizontalGradient(
+            colors = listOf(Color.Black, Color.fromHsv(hue, saturation, 1f))
+        )
+        
+        drawRoundRect(
+            brush = gradient,
+            topLeft = trackRect.topLeft,
+            size = trackRect.size,
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(trackHeight / 2)
+        )
+
+        // Selector
+        val handleX = value * size.width
+        drawCircle(
+            color = Color.White,
+            radius = radius,
+            center = Offset(handleX, size.height / 2),
+            style = Stroke(width = 2.dp.toPx())
+        )
+        drawCircle(
+            color = Color.Black,
+            radius = radius - 1.dp.toPx(),
+            center = Offset(handleX, size.height / 2),
+            style = Stroke(width = 1.dp.toPx())
+        )
     }
 }
 

@@ -42,7 +42,7 @@ class AdvancedSettingsPresenterTest {
                 assertThat(isDeveloperModeEnabled).isFalse()
                 assertThat(isSharePresenceEnabled).isTrue()
                 assertThat(mediaOptimizationState).isNull()
-                assertThat(theme).isEqualTo(ThemeOption.System)
+                assertThat(theme).isEqualTo(ThemeOption.Color)
                 assertThat(themeColor).isEqualTo("#4d00b2")
                 assertThat(availableThemeOptions).isEqualTo(
                     listOf(ThemeOption.System, ThemeOption.Light, ThemeOption.Dark, ThemeOption.Color).toImmutableList()
@@ -194,11 +194,15 @@ class AdvancedSettingsPresenterTest {
             skipItems(1)
 
             with(awaitItem()) {
-                assertThat(theme).isEqualTo(ThemeOption.System)
+                assertThat(theme).isEqualTo(ThemeOption.Color)
                 eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Dark))
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Dark)
+                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.System))
+            }
+            with(awaitItem()) {
+                assertThat(theme).isEqualTo(ThemeOption.System)
                 eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.Color))
             }
             with(awaitItem()) {
@@ -207,10 +211,6 @@ class AdvancedSettingsPresenterTest {
             }
             with(awaitItem()) {
                 assertThat(theme).isEqualTo(ThemeOption.Light)
-                eventSink(AdvancedSettingsEvent.SetTheme(ThemeOption.System))
-            }
-            with(awaitItem()) {
-                assertThat(theme).isEqualTo(ThemeOption.System)
             }
         }
     }
@@ -242,20 +242,20 @@ class AdvancedSettingsPresenterTest {
             skipItems(1)
 
             with(awaitItem()) {
-                assertThat(isChatBackgroundImageEnabled).isFalse()
-                assertThat(chatBackgroundImageUri).isNull()
-                eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(true))
-            }
-            with(awaitItem()) {
                 assertThat(isChatBackgroundImageEnabled).isTrue()
-                eventSink(AdvancedSettingsEvent.SetChatBackgroundImage("uri://image"))
-            }
-            with(awaitItem()) {
-                assertThat(chatBackgroundImageUri).isEqualTo("uri://image")
+                assertThat(chatBackgroundImageUri).isNull()
                 eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(false))
             }
             with(awaitItem()) {
                 assertThat(isChatBackgroundImageEnabled).isFalse()
+                eventSink(AdvancedSettingsEvent.SetChatBackgroundImage("uri://image"))
+            }
+            with(awaitItem()) {
+                assertThat(chatBackgroundImageUri).isEqualTo("uri://image")
+                eventSink(AdvancedSettingsEvent.SetChatBackgroundImageEnabled(true))
+            }
+            with(awaitItem()) {
+                assertThat(isChatBackgroundImageEnabled).isTrue()
             }
         }
     }

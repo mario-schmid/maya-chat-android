@@ -137,7 +137,7 @@ class DefaultAppPreferencesStore(
 
     override fun isChatBackgroundImageEnabledFlow(): Flow<Boolean> {
         return store.data.map { prefs ->
-            prefs[isChatBackgroundImageEnabledKey] ?: false
+            prefs[isChatBackgroundImageEnabledKey] ?: true
         }
     }
 

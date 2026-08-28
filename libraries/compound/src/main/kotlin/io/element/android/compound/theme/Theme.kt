@@ -55,7 +55,7 @@ private fun isSystemThemeDark(): Boolean {
 
 fun Flow<String?>.mapToTheme(allowBlackTheme: Boolean): Flow<Theme> = map {
     when (it) {
-        null -> Theme.System
+        null -> Theme.Color
         else -> Theme.valueOf(it)
     }.coerceBlackTheme(allowBlackTheme)
 }

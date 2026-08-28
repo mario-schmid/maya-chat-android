@@ -27,7 +27,7 @@ class InMemoryAppPreferencesStore(
     theme: String? = null,
     themeColor: String = "#4d00b2",
     chatBackgroundImageUri: String? = null,
-    isChatBackgroundImageEnabled: Boolean = false,
+    isChatBackgroundImageEnabled: Boolean = true,
     liveLocationMinimumDistanceUpdate: Int = 10,
     logLevel: LogLevel = LogLevel.INFO,
     traceLogPacks: Set<TraceLogPack> = emptySet(),

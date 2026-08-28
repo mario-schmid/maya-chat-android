@@ -69,7 +69,7 @@ fun ElementThemeApp(
     }.collectAsState(initial = false)
     val theme by remember(isBlackThemeAllowed) {
         appPreferencesStore.getThemeFlow().mapToTheme(allowBlackTheme = isBlackThemeAllowed)
-    }.collectAsState(initial = Theme.System)
+    }.collectAsState(initial = Theme.Color)
     val themeColorHex by remember {
         appPreferencesStore.getThemeColorFlow()
     }.collectAsState(initial = "#4d00b2")
