@@ -24,9 +24,9 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
  * - 1 (or 2) digits for the release number
  * Note that the version codes need to be greater than the ones calculated for the previous releases, so we use
  * year on 4 digits for this internal value.
- * So for instance, the first release of Zip' 5154 will have:
+ * So for instance, the first release of Sip 5154 will have:
  * - the version name: 54.03.0
- * - the version code: 51540100a (515_401_00a) where `a` stands for the architecture code
+ * - the version code: 51540300a (515_403_00a) where `a` stands for the architecture code
  */
 
 /**
@@ -45,7 +45,7 @@ private const val versionWinal = 10
  * Release number in the winal. Value must be in [0,99].
  * Do not update this value. it is updated by the release script.
  */
-private const val versionReleaseNumber = 1
+private const val versionReleaseNumber = 3
 
 object Versions {
     /**

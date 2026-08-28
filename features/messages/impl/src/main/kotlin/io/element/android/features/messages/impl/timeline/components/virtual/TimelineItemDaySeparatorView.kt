@@ -91,14 +91,6 @@ internal fun TimelineItemDaySeparatorView(
                     modifier = Modifier.offset(y = (16).dp)
                 )
             }
-
-            // Original Gregorian Date
-            Text(
-                text = model.formattedDate,
-                style = ElementTheme.typography.fontBodyMdMedium,
-                color = ElementTheme.colors.textPrimary,
-                modifier = Modifier.offset(y = (16).dp)
-            )
         }
     }
 }
