@@ -8,6 +8,7 @@
 
 package io.element.android.features.preferences.impl.advanced
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -105,10 +107,12 @@ fun AdvancedSettingsView(
             }
         )
         var displayColorPickerDialog by remember { mutableStateOf(false) }
+        val contentResolver = LocalContext.current.contentResolver
         val pickImageLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.PickVisualMedia()
         ) { uri ->
             if (uri != null) {
+                contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 state.eventSink(AdvancedSettingsEvent.SetChatBackgroundImage(uri.toString()))
             }
         }
