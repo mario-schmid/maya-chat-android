@@ -390,11 +390,21 @@ fun TextComposer(
             isRoomEncrypted = state.isRoomEncrypted,
             textInput = textInput,
             dismissTextFormattingButton = {
-                IconColorButton(
+                IconButton(
+                    modifier = Modifier.size(48.dp),
                     onClick = onDismissTextFormatting,
-                    imageVector = CompoundIcons.Close(),
-                    contentDescription = stringResource(R.string.rich_text_editor_close_formatting_options),
-                )
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(30.dp)
+                            .background(ElementTheme.colors.bgActionPrimaryRest)
+                            .padding(3.dp),
+                        imageVector = CompoundIcons.Close(),
+                        contentDescription = stringResource(R.string.rich_text_editor_close_formatting_options),
+                        tint = ElementTheme.colors.iconOnSolidPrimary,
+                    )
+                }
             },
             textFormatting = textFormattingOptions,
             endButtonParams = endButtonParams,
